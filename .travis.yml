@@ -10,6 +10,6 @@ otp_release:
   - 18.3
   - 19.3
   - 20.3
-  - 21.1
+  #  - 21.1
 
 script: "mix local.rebar --force && mix local.hex --force && mix deps.get && mix test"
