@@ -11,18 +11,10 @@ defmodule WebAuthnLite.Challenge do
   @doc """
   generate base64 URL encoded random bytes string.
 
-    iex> WebAuthnLite.Challenge.generate_base64_url_encoded_challenge()
-    "d2IFFBIaBhPDz2_J-_hlyA"
-    iex> challenge = WebAuthnLite.Challenge.generate_base64_url_encoded_challenge()
-    "b963p5I0bvamfimxpAxMkw"
-    iex> challenge |> Base.url_decode64!(padding: false)
-    <<111, 222, 183, 167, 146, 52, 110, 246, 166, 126, 41, 177, 164, 12, 76, 147>>
-    iex> challenge |> Base.url_decode64!(padding: false) |> byte_size()
+    iex> WebAuthnLite.Challenge.generate_base64_url_encoded_challenge() |> Base.url_decode64!(padding: false) |> byte_size()
     16
 
-    iex> challenge = WebAuthnLite.Challenge.generate_base64_url_encoded_challenge(100)
-    "NsUXHZUEyNQkTSEV-zLqT232fopJHKnS4nJLI4r-og0JGQAvHyw97xBO4D4izrrZcTAcA_GX2yYTE-U-yVVFOXWXf5MepHR1rAOT0E2FG7hjSD77QzoDZl1o-AJYaplF2zG9Gw"
-    iex> challenge |> Base.url_decode64!(padding: false) |> byte_size()
+    iex> WebAuthnLite.Challenge.generate_base64_url_encoded_challenge(100) |> Base.url_decode64!(padding: false) |> byte_size()
     100
 
   """

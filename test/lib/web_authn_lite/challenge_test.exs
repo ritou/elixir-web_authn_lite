@@ -2,6 +2,7 @@ defmodule WebAuthnLite.ChallengeTest do
   use ExUnit.Case, async: false
 
   alias WebAuthnLite.Challenge
+  doctest Challenge
 
   test "generate_base64_url_encoded_challenge" do
     assert nil == Challenge.generate_base64_url_encoded_challenge(15)
