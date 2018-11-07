@@ -1,6 +1,10 @@
 defmodule WebAuthnLite.ClientDataJSONTest do
   use ExUnit.Case, async: false
   alias WebAuthnLite.AuthenticatorData
+  alias WebAuthnLite.AuthenticatorData.Flags
+
+  doctest AuthenticatorData
+  doctest Flags
 
   @valid_encoded_authenticator_data "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAGw"
   @invalid_encoded_authenticator_data "invalid"
@@ -9,8 +13,7 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     assert {:ok, authenticator_data} = AuthenticatorData.decode(@valid_encoded_authenticator_data)
 
     assert authenticator_data == %WebAuthnLite.AuthenticatorData{
-             attested_credential_data: nil,
-             flags: %WebAuthnLite.AuthenticatorData.Flags{
+             flags: %Flags{
                at: false,
                ed: false,
                flags: <<1>>,
@@ -22,7 +25,9 @@ defmodule WebAuthnLite.ClientDataJSONTest do
                  174, 185, 162, 134, 50, 199, 153, 92, 243, 186, 131, 29, 151, 99, 1, 0, 0, 0,
                  27>>,
              rp_id_hash: "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2M",
-             sign_count: 27
+             sign_count: 27,
+             attested_credential_data: nil,
+             extensions: nil
            }
 
     assert {:error, :invalid_format} ==
