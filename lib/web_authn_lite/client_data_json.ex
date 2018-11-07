@@ -12,6 +12,9 @@ defmodule WebAuthnLite.ClientDataJSON do
           raw: String.t()
         }
 
+  @doc """
+  decode Base64 URL encoded clientDataJSON and return struct.
+  """
   @spec decode(base64_url_encoded_client_data_json :: String.t()) ::
           {:ok, t} | {:error, :invalid_format}
   def decode(base64_url_encoded_client_data_json) do
@@ -30,6 +33,9 @@ defmodule WebAuthnLite.ClientDataJSON do
     end
   end
 
+  @doc """
+  validate Base64 URL encoded clientDataJSON with params and return struct.
+  """
   @spec validate(base64_url_encoded_client_data_json :: String.t(), type :: String.t, origin :: String.t, challenge :: String.t) ::
           {:ok, t} | {:error, :invalid_format} | {:error, :invalid_type} | {:error, :invalid_origin} | {:error, :invalid_challenge}
   def validate(base64_url_encoded_client_data_json, type, origin, challenge) do

@@ -1,6 +1,7 @@
 defmodule WebAuthnLite.ClientDataJSONTest do
   use ExUnit.Case, async: false
   alias WebAuthnLite.ClientDataJSON
+  doctest ClientDataJSON
 
   @valid_encoded_client_data_json "eyJjaGFsbGVuZ2UiOiJhX1Q3TWtFMW8xVW1mWWZDWGFWVkNJcUhFYmpQbXdBUXAzbXNIRnRaaTkwIiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDo0MDAwIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9"
   @invalid_encoded_client_data_json "invalid"
