@@ -4,7 +4,8 @@ defmodule WebAuthnLite.ChallengeTest do
   alias WebAuthnLite.Challenge
 
   test "generate_base64_url_encoded_challenge" do
-    assert challenge = Challenge.generate_base64_url_encoded_challenge()
-    assert 32 == challenge |> Base.url_decode64!(padding: false) |> byte_size()
+    assert nil == Challenge.generate_base64_url_encoded_challenge(15)
+    assert 16 == Challenge.generate_base64_url_encoded_challenge() |> Base.url_decode64!(padding: false) |> byte_size()
+    assert 32 == Challenge.generate_base64_url_encoded_challenge(32) |> Base.url_decode64!(padding: false) |> byte_size()
   end
 end
