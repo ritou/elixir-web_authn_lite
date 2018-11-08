@@ -33,4 +33,9 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     assert {:error, :invalid_format} ==
              AuthenticatorData.decode(@invalid_encoded_authenticator_data)
   end
+
+  test "rp_id_hash" do
+    assert "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2M" ==
+             AuthenticatorData.rp_id_hash("localhost")
+  end
 end

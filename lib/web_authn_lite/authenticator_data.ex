@@ -41,4 +41,9 @@ defmodule WebAuthnLite.AuthenticatorData do
       _ -> {:error, :invalid_format}
     end
   end
+
+  @spec rp_id_hash(rp_id :: String.t()) :: String.t()
+  def rp_id_hash(rp_id) do
+    :crypto.hash(:sha256, rp_id) |> Base.url_encode64(padding: false)
+  end
 end
