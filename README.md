@@ -21,7 +21,7 @@ be found at [https://hexdocs.pm/web_authn_lite](https://hexdocs.pm/web_authn_lit
 
 # Usage : WebAuthn without Attestation
 
-If the RelyingParty does not request Attestation, the implementation of WebAuthn is quite simple.
+If the RelyingParty does not request Attestation, the implementation of WebAuthn is quite simple.
 
 See https://www.w3.org/TR/webauthn/#attestation-convey
 
