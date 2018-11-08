@@ -25,8 +25,8 @@ defmodule WebAuthnLite.AuthenticatorData do
          rp_id_hash <- raw |> :binary.part(0, 32),
          flags <- raw |> :binary.part(32, 1) |> Flags.decode() |> elem(1),
          sign_count <- raw |> :binary.part(33, 4) |> :binary.decode_unsigned() do
-      attested_credential_data = if flags.at && !flags.ed, do: :binary.part(37, -1), else: nil
-      extensions = if !flags.at && flags.ed, do: :binary.part(37, -1), else: nil
+      attested_credential_data = if flags.at && !flags.ed, do: raw |> :binary.part(37, byte_size(raw) - 37), else: nil
+      extensions = if !flags.at && flags.ed, do: raw |> :binary.part(37, byte_size(raw) - 37), else: nil
 
       {:ok,
        %__MODULE__{
