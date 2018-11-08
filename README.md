@@ -25,7 +25,7 @@ If the RelyingParty does not request Attestation, the implementation of WebAuth
 
 See https://www.w3.org/TR/webauthn/#attestation-convey
 
-## 1.1. `Registration` Generate and store challenge
+## 1.1. [`Registration`] Generate and store challenge
 
 ### Server-side
 
@@ -60,7 +60,9 @@ challenge = conn |> get_session(:webauthn_challenge)
 
 ## 1.5. Store Credential.Id with account
 
-## 2.1. `Authentication` Generate and store challenge
+Registration Success.
+
+## 2.1. [`Authentication`] Generate and store challenge
 
 ### Server-side
 
@@ -82,10 +84,11 @@ Set Base64 URL decoded challenge and call `navigator.credentials.get()`
 
 Encode following params and send them to server-side.
 
+* `Id` or `rawId`
 * `AuthenticatorAssertionResponse.clientDataJSON`
 * `AuthenticatorAssertionResponse.authenticatorData`
 
-## 1.4. Validate clientDataJSON
+## 2.4. Validate clientDataJSON
 
 ### Server-side
 
@@ -93,11 +96,16 @@ challenge = conn |> get_session(:webauthn_challenge)
 
 {:ok, _} = WebAuthnLite.ClientDataJSON.validate(encoded_client_data_json, type, origin, challenge)
 
-## 1.5. Validate authenticatorData
+## 2.5. Validate authenticatorData
 
-...
+Decode and validate authenticatorData.
 
-## 1.6 Authentication Success
+authenticator_data = WebAuthnLite.AuthenticatorData.decode(encoded_authenticator_data)
 
-...
+* `authenticator_data.rp_id_hash`
+* `authenticator_data.flags`
+* `authenticator_data.sign_count`
 
+## 2.6 Authentication Success
+
+Authentication Success
