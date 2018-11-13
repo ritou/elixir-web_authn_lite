@@ -27,6 +27,7 @@ defmodule WebAuthnLite.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:jose, "~> 1.8"},
       {:jason, "~> 1.1"},
       {:cbor, github: "yjh0502/cbor-erlang"} # Erlang CBOR library
     ]
