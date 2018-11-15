@@ -1,6 +1,6 @@
 defmodule WebAuthnLite.AuthenticatorData.Flags do
   @moduledoc """
-  Authenticator Flags Parser
+  Struct for authenticator flags
 
   see https://www.w3.org/TR/webauthn/#flags
   """
@@ -20,8 +20,8 @@ defmodule WebAuthnLite.AuthenticatorData.Flags do
   @doc """
   parse bitstring and return struct.
   """
-  @spec decode(flags :: binary) :: {:ok, t} | {:error, :invalid_format}
-  def decode(flags) do
+  @spec from_binary(flags :: binary) :: {:ok, t} | {:error, :invalid_format}
+  def from_binary(flags) do
     with true <- flags |> byte_size() == @flags_byte_size,
          <<ed::size(1), at::size(1), _rfu2::size(3), uv::size(1), _rfu1::size(1), up::size(1)>> <-
            flags do
