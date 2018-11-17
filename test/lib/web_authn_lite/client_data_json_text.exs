@@ -17,6 +17,7 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     assert client_data.origin == @valid_origin
     assert client_data.type == @valid_type
     assert client_data.raw == @valid_raw
+    assert client_data.hash == :crypto.hash(:sha256, @valid_raw)
 
     assert {:error, :invalid_format} == ClientDataJSON.decode(@invalid_encoded_client_data_json)
   end

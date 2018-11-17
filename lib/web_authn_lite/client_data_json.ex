@@ -3,13 +3,14 @@ defmodule WebAuthnLite.ClientDataJSON do
   ClientDataJSON Parser
   """
 
-  defstruct [:type, :origin, :challenge, :raw]
+  defstruct [:type, :origin, :challenge, :raw, :hash]
 
   @type t :: %__MODULE__{
           type: String.t(),
           origin: String.t(),
           challenge: String.t(),
-          raw: String.t()
+          raw: String.t(),
+          hash: binary
         }
 
   @doc """
@@ -26,7 +27,8 @@ defmodule WebAuthnLite.ClientDataJSON do
            type: json["type"],
            origin: json["origin"],
            challenge: json["challenge"],
-           raw: raw
+           raw: raw,
+           hash: :crypto.hash(:sha256, raw)
          }}
       end
     rescue
