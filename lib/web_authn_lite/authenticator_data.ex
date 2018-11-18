@@ -1,6 +1,8 @@
 defmodule WebAuthnLite.AuthenticatorData do
   @moduledoc """
-  Authenticator Parser
+  Data struct and functions for AuthenticatorData
+
+  https://www.w3.org/TR/webauthn/#authenticator-data
   """
   alias WebAuthnLite.AuthenticatorData.Flags
   alias WebAuthnLite.AttestedCredentialData
@@ -18,40 +20,50 @@ defmodule WebAuthnLite.AuthenticatorData do
 
   @min_size_of_authenticator_data 37
 
-  @spec decode(authenticator_data :: String.t(), opts :: Keyword.t()) ::
-          {:ok, t} | {:error, :invalid_format}
-  def decode(authenticator_data, opts \\ [encoded: true]) do
-    with raw <-
-           (if opts[:encoded] do
-              authenticator_data |> Base.url_decode64!(padding: false)
-            else
-              authenticator_data
-            end),
-         true <- raw |> byte_size() >= @min_size_of_authenticator_data,
-         rp_id_hash <- raw |> :binary.part(0, 32),
-         flags <- raw |> :binary.part(32, 1) |> Flags.decode() |> elem(1),
-         sign_count <- raw |> :binary.part(33, 4) |> :binary.decode_unsigned() do
-      attested_credential_data =
-        if flags.at && !flags.ed,
-          do:
-            raw |> :binary.part(37, byte_size(raw) - 37) |> AttestedCredentialData.decode()
-            |> elem(1),
-          else: nil
+  @rounded_error {:error, :invalid_authenticator_data}
 
-      extensions =
-        if !flags.at && flags.ed, do: raw |> :binary.part(37, byte_size(raw) - 37), else: nil
+  @spec decode(authenticator_data :: String.t()) ::
+          {:ok, t} | {:error, :invalid_authenticator_data} | {:error, term}
+  def decode(authenticator_data) do
+    authenticator_data
+    |> Base.url_decode64!(padding: false)
+    |> from_binary()
+  end
 
-      {:ok,
-       %__MODULE__{
-         rp_id_hash: rp_id_hash |> Base.url_encode64(padding: false),
-         flags: flags,
-         sign_count: sign_count,
-         raw: raw,
-         attested_credential_data: attested_credential_data,
-         extensions: extensions
-       }}
-    else
-      _ -> {:error, :invalid_format}
+  @spec from_binary(authenticator_data :: binary) ::
+          {:ok, t} | {:error, :invalid_authenticator_data} | {:error, term}
+  def from_binary(authenticator_data) do
+    try do
+      with raw <- authenticator_data,
+           true <- raw |> byte_size() >= @min_size_of_authenticator_data,
+           rp_id_hash <- raw |> :binary.part(0, 32),
+           flags <- raw |> :binary.part(32, 1) |> Flags.from_binary() |> elem(1),
+           sign_count <- raw |> :binary.part(33, 4) |> :binary.decode_unsigned() do
+        attested_credential_data =
+          if flags.at && !flags.ed,
+            do:
+              raw |> :binary.part(37, byte_size(raw) - 37) |> AttestedCredentialData.from_binary()
+              |> elem(1),
+            else: nil
+
+        extensions =
+          if !flags.at && flags.ed, do: raw |> :binary.part(37, byte_size(raw) - 37), else: nil
+
+        {:ok,
+         %__MODULE__{
+           rp_id_hash: rp_id_hash |> Base.url_encode64(padding: false),
+           flags: flags,
+           sign_count: sign_count,
+           raw: raw,
+           attested_credential_data: attested_credential_data,
+           extensions: extensions
+         }}
+      else
+        {:error, _} = error -> error
+        _ -> @rounded_error
+      end
+    rescue
+      _ -> @rounded_error
     end
   end
 
