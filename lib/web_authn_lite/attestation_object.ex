@@ -3,6 +3,9 @@ defmodule WebAuthnLite.AttestationObject do
   Data struct and functions for attestationObject
 
   https://www.w3.org/TR/webauthn/#sctn-attestation
+
+  TODO:
+  * Handling AttestationStatement
   """
 
   alias WebAuthnLite.AuthenticatorData
@@ -16,18 +19,29 @@ defmodule WebAuthnLite.AttestationObject do
           raw: binary
         }
 
+  @loose_error {:error, :invalid_attestation_object}
+
   @spec decode(base64_url_encoded_attestation_object :: String.t()) ::
-          t | {:error, :invalid_format}
+          {:ok, t} | {:error, :invalid_attestation_object}
   def decode(base64_url_encoded_attestation_object) do
-    with raw <- base64_url_encoded_attestation_object |> Base.url_decode64!(padding: false),
-         %{"authData" => auth_data_binary, "fmt" => fmt, "attStmt" => att_stmt} <-
-           raw |> :cbor.decode(),
-         {:ok, auth_data} <-
-           auth_data_binary
-           |> WebAuthnLite.AuthenticatorData.decode(encoded: false) do
-      {:ok, %__MODULE__{auth_data: auth_data, fmt: fmt, att_stmt: att_stmt, raw: raw}}
-    else
-      _ -> {:error, :invalid_format}
+    try do
+      with raw <- base64_url_encoded_attestation_object |> Base.url_decode64!(padding: false),
+           %{"authData" => auth_data_binary, "fmt" => fmt, "attStmt" => att_stmt} <-
+             raw |> :cbor.decode(),
+           {:ok, auth_data} <-
+             auth_data_binary
+             |> WebAuthnLite.AuthenticatorData.from_binary() do
+        # TODO: handling attestation statement
+        {:ok, %__MODULE__{auth_data: auth_data, fmt: fmt, att_stmt: att_stmt, raw: raw}}
+      else
+        _ -> @loose_error
+      end
+    rescue
+      _ -> @loose_error
+    catch
+      # for :cbor.decode failed
+      _ -> @loose_error
     end
   end
+
 end
