@@ -26,8 +26,19 @@ defmodule WebAuthnLite.SignatureTest do
     {:ok, client_data_json} =
       @es256_b64_url_encoded_client_data_json |> WebAuthnLite.ClientDataJSON.decode()
 
-    assert Signature.valid?(@es256_b64_url_encoded_signature, authenticator_data, client_data_json, public_key)
-    refute Signature.valid?(@rs256_b64_url_encoded_signature, authenticator_data, client_data_json, public_key)
+    assert Signature.valid?(
+             @es256_b64_url_encoded_signature,
+             authenticator_data,
+             client_data_json,
+             public_key
+           )
+
+    refute Signature.valid?(
+             @rs256_b64_url_encoded_signature,
+             authenticator_data,
+             client_data_json,
+             public_key
+           )
 
     {:ok, attestation_object} =
       @rs256_b64_url_encoded_attestation_object |> WebAuthnLite.AttestationObject.decode()
@@ -40,7 +51,18 @@ defmodule WebAuthnLite.SignatureTest do
     {:ok, client_data_json} =
       @rs256_b64_url_encoded_client_data_json |> WebAuthnLite.ClientDataJSON.decode()
 
-    assert Signature.valid?(@rs256_b64_url_encoded_signature, authenticator_data, client_data_json, public_key)
-    refute Signature.valid?(@es256_b64_url_encoded_signature, authenticator_data, client_data_json, public_key)
+    assert Signature.valid?(
+             @rs256_b64_url_encoded_signature,
+             authenticator_data,
+             client_data_json,
+             public_key
+           )
+
+    refute Signature.valid?(
+             @es256_b64_url_encoded_signature,
+             authenticator_data,
+             client_data_json,
+             public_key
+           )
   end
 end

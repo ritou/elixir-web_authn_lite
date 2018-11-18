@@ -18,7 +18,9 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
 
   @rs256_cbor_map %{
     -2 => <<1, 0, 1>>,
-    -1 => "zPseSvwtNvc1pPTF7Dd3-GGPjGrvapRHSMaXcQ5YqdZldl2M2LAaun3jE0_r3moNTX-L4PaRTB544b4BMO5VXGtxPPIxj1ydwdYGkL-7ziUYXaCLg-TLd3bALvaJjJjzd69SIE20kVGOdH5BGYkJhW7vm1SJpOMsZbbrUiCAuG_XDX9rasZXAaoplAl9qQCX_MQwiWFLH6bTuMTbOaiHw61og486NaiG-z-muUWAknxQnnCPa6DNXs-GIh00EBcm8sqjTnE086dyNYiz3INwPcd8ejsDbapLH-LLmjT5ofF0xfAWtcOtJlpga6yPHlTQqBzEz2vqUip0PjClABu9TQ" |> Base.url_decode64!(padding: false),
+    -1 =>
+      "zPseSvwtNvc1pPTF7Dd3-GGPjGrvapRHSMaXcQ5YqdZldl2M2LAaun3jE0_r3moNTX-L4PaRTB544b4BMO5VXGtxPPIxj1ydwdYGkL-7ziUYXaCLg-TLd3bALvaJjJjzd69SIE20kVGOdH5BGYkJhW7vm1SJpOMsZbbrUiCAuG_XDX9rasZXAaoplAl9qQCX_MQwiWFLH6bTuMTbOaiHw61og486NaiG-z-muUWAknxQnnCPa6DNXs-GIh00EBcm8sqjTnE086dyNYiz3INwPcd8ejsDbapLH-LLmjT5ofF0xfAWtcOtJlpga6yPHlTQqBzEz2vqUip0PjClABu9TQ"
+      |> Base.url_decode64!(padding: false),
     1 => 3,
     3 => -257
   }

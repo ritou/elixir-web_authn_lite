@@ -10,7 +10,8 @@ defmodule WebAuthnLite.CredentialPublicKey do
   @cbor_map_key_alg_es256 -7
   # TODO: support other algs
 
-  @spec from_cbor_map(cbor_map :: map) :: WebAuthnLite.CredentialPublicKey.RS256.t | WebAuthnLite.CredentialPublicKey.ES256.t
+  @spec from_cbor_map(cbor_map :: map) ::
+          WebAuthnLite.CredentialPublicKey.RS256.t() | WebAuthnLite.CredentialPublicKey.ES256.t()
   def from_cbor_map(cbor_map) do
     case cbor_map[@cbor_map_key_alg] do
       @cbor_map_key_alg_rs256 ->
