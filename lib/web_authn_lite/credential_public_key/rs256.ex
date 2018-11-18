@@ -1,9 +1,10 @@
 defmodule WebAuthnLite.CredentialPublicKey.RS256 do
-  defstruct [:key, :digest_type]
+  defstruct [:key, :digest_type, :map]
 
   @type t :: %__MODULE__{
           key: term,
-          digest_type: atom
+          digest_type: atom,
+          map: map
         }
 
   @spec from_cbor_map(map) :: t
@@ -14,7 +15,7 @@ defmodule WebAuthnLite.CredentialPublicKey.RS256 do
            "e" => cbor_map[-2] |> Base.encode64()
          },
          {:jose_jwk_kty_rsa, key} <- JOSE.JWK.from_map(key_map).kty do
-      %__MODULE__{digest_type: :sha256, key: key}
+      %__MODULE__{digest_type: :sha256, key: key, map: key_map}
     else
       _ -> {:error, :invalid_key}
     end
