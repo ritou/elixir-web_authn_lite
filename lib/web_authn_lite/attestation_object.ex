@@ -19,7 +19,7 @@ defmodule WebAuthnLite.AttestationObject do
           raw: binary
         }
 
-  @loose_error {:error, :invalid_attestation_object}
+  @rounded_error {:error, :invalid_attestation_object}
 
   @spec decode(base64_url_encoded_attestation_object :: String.t()) ::
           {:ok, t} | {:error, :invalid_attestation_object}
@@ -34,14 +34,15 @@ defmodule WebAuthnLite.AttestationObject do
         # TODO: handling attestation statement
         {:ok, %__MODULE__{auth_data: auth_data, fmt: fmt, att_stmt: att_stmt, raw: raw}}
       else
-        _ -> @loose_error
+        {:error, _} = error -> error
+        _ -> @rounded_error
       end
     rescue
-      _ -> @loose_error
+      _ -> @rounded_error
     catch
       # for :cbor.decode failed
-      _ -> @loose_error
+      _ ->
+        @rounded_error
     end
   end
-
 end

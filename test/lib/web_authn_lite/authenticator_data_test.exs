@@ -1,5 +1,6 @@
 defmodule WebAuthnLite.ClientDataJSONTest do
   use ExUnit.Case, async: false
+
   alias WebAuthnLite.AuthenticatorData
   alias WebAuthnLite.AuthenticatorData.Flags
 
@@ -8,6 +9,8 @@ defmodule WebAuthnLite.ClientDataJSONTest do
 
   @valid_encoded_authenticator_data "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAGw"
   @invalid_encoded_authenticator_data "invalid"
+
+  @encoded_authenticator_data_with_attested_credential_data "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NBAAAAC_igEfOMCk0VgAYXER-e3H0AEDIBRoyihvjNZOR2yfjLPhulAQIDJiABIVggIXUM4qBXox--h7XwLrTlN4oPj-8bE27wjXlEZIRHL4kiWCBFllqpZSGGRUTgbLTjR5_H4oUr0SJIm3oE659m5sVxUw"
 
   test "decode" do
     assert {:ok, authenticator_data} = AuthenticatorData.decode(@valid_encoded_authenticator_data)
@@ -32,6 +35,11 @@ defmodule WebAuthnLite.ClientDataJSONTest do
 
     assert {:error, :invalid_format} ==
              AuthenticatorData.decode(@invalid_encoded_authenticator_data)
+
+    assert {:ok, authenticator_data} =
+             AuthenticatorData.decode(@encoded_authenticator_data_with_attested_credential_data)
+
+    refute is_nil(authenticator_data.attested_credential_data)
   end
 
   test "rp_id_hash" do
