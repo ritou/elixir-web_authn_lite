@@ -14,12 +14,15 @@ defmodule WebAuthnLite.AttestedCredentialData do
   @type t :: %__MODULE__{
           aaguid: String.t(),
           credential_id: String.t(),
-          # WebAuthnLite.CredentialPublicKey.RSA.t,
-          credential_public_key: binary,
+          credential_public_key: term,
           raw: binary
         }
 
-  def decode(attested_credential_data) do
+  @rounded_error {:error, :invalid_attested_credential_data}
+
+  @spec from_binary(attested_credential_data :: binary) ::
+          t | {:error, :invalid_attested_credential_data} | {:error, term}
+  def from_binary(attested_credential_data) do
     with true <- attested_credential_data |> byte_size() >= @min_size_of_attested_credential_data,
          aaguid <-
            attested_credential_data |> :binary.part(0, 16) |> Base.url_encode64(padding: false),
@@ -35,7 +38,7 @@ defmodule WebAuthnLite.AttestedCredentialData do
              byte_size(attested_credential_data) - credential_id_length - 18
            )
            |> :cbor.decode()
-           |> CredentialPublicKey.decode() do
+           |> CredentialPublicKey.from_cbor_map() do
       {:ok,
        %__MODULE__{
          aaguid: aaguid,
@@ -44,7 +47,8 @@ defmodule WebAuthnLite.AttestedCredentialData do
          raw: attested_credential_data
        }}
     else
-      _ -> {:error, :invalid_format}
+      {:error, _} = error -> error
+      _ -> @rounded_error
     end
   end
 end
