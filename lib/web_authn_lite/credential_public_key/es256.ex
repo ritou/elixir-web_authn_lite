@@ -1,10 +1,11 @@
 defmodule WebAuthnLite.CredentialPublicKey.ES256 do
-  defstruct [:key, :digest_type, :map]
+  defstruct [:key, :digest_type, :map, :json]
 
   @type t :: %__MODULE__{
           key: term,
           digest_type: atom,
-          map: map
+          map: map,
+          json: String.t()
         }
 
   @spec from_cbor_map(map) :: t
@@ -16,7 +17,7 @@ defmodule WebAuthnLite.CredentialPublicKey.ES256 do
            "y" => cbor_map[-3] |> Base.encode64()
          },
          {:jose_jwk_kty_ec, key} <- JOSE.JWK.from_map(key_map).kty do
-      %__MODULE__{digest_type: :sha256, key: key, map: key_map}
+      %__MODULE__{digest_type: :sha256, key: key, map: key_map, json: key_map |> Jason.encode!()}
     else
       _ -> {:error, :invalid_key}
     end

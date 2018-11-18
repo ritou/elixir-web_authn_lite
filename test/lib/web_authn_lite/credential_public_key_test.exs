@@ -36,6 +36,8 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
              "x" => "IXUM4qBXox++h7XwLrTlN4oPj+8bE27wjXlEZIRHL4k=",
              "y" => "RZZaqWUhhkVE4Gy040efx+KFK9EiSJt6BOufZubFcVM="
            }
+
+    refute is_nil(credential_public_key.json)
   end
 
   test "RS256" do
@@ -49,5 +51,7 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
              "n" =>
                "zPseSvwtNvc1pPTF7Dd3+GGPjGrvapRHSMaXcQ5YqdZldl2M2LAaun3jE0/r3moNTX+L4PaRTB544b4BMO5VXGtxPPIxj1ydwdYGkL+7ziUYXaCLg+TLd3bALvaJjJjzd69SIE20kVGOdH5BGYkJhW7vm1SJpOMsZbbrUiCAuG/XDX9rasZXAaoplAl9qQCX/MQwiWFLH6bTuMTbOaiHw61og486NaiG+z+muUWAknxQnnCPa6DNXs+GIh00EBcm8sqjTnE086dyNYiz3INwPcd8ejsDbapLH+LLmjT5ofF0xfAWtcOtJlpga6yPHlTQqBzEz2vqUip0PjClABu9TQ=="
            }
+
+    refute is_nil(credential_public_key.json)
   end
 end
