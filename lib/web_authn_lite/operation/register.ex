@@ -9,7 +9,8 @@ defmodule WebAuthnLite.Operation.Register do
 
   @registration_type "webauthn.create"
 
-  @rounded_error {:error, :invalid_client_data_json}
+  @rounded_error_client_data_json {:error, :invalid_client_data_json}
+  @rounded_error_attestation_object {:error, :invalid_attestation_object}
 
   @doc """
   Verify clientDataJSON and return struct.
@@ -26,7 +27,7 @@ defmodule WebAuthnLite.Operation.Register do
     case ClientDataJSON.validate(encoded_client_data_json, @registration_type, origin, challenge) do
       {:ok, _client_data_json} = valid -> valid
       {:error, _} = invalid -> invalid
-      _ -> @rounded_error
+      _ -> @rounded_error_client_data_json
     end
   end
 
@@ -45,7 +46,8 @@ defmodule WebAuthnLite.Operation.Register do
       }) do
     case AttestationObject.decode(encoded_attestation_object) do
       {:ok, _attestation_object} = valid -> valid
-      error -> error
+      {:error, _} = invalid -> invalid
+      _ -> @rounded_error_attestation_object
     end
   end
 end
