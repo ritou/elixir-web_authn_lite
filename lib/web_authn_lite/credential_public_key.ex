@@ -11,7 +11,9 @@ defmodule WebAuthnLite.CredentialPublicKey do
   # TODO: support other algs
 
   @spec from_cbor_map(cbor_map :: map) ::
-          WebAuthnLite.CredentialPublicKey.RS256.t() | WebAuthnLite.CredentialPublicKey.ES256.t()
+          WebAuthnLite.CredentialPublicKey.RS256.t()
+          | WebAuthnLite.CredentialPublicKey.ES256.t()
+          | {:error, :invalid_credential_public_key}
   def from_cbor_map(cbor_map) do
     case cbor_map[@cbor_map_key_alg] do
       @cbor_map_key_alg_rs256 ->
@@ -21,7 +23,41 @@ defmodule WebAuthnLite.CredentialPublicKey do
         cbor_map |> WebAuthnLite.CredentialPublicKey.ES256.from_cbor_map()
 
       _ ->
-        nil
+        {:error, :invalid_credential_public_key}
+    end
+  end
+
+  @spec from_json(json_encoded_key_map :: String.t()) ::
+          WebAuthnLite.CredentialPublicKey.RS256.t()
+          | WebAuthnLite.CredentialPublicKey.ES256.t()
+          | {:error, :invalid_credential_public_key}
+  def from_json(json_encoded_key_map) do
+    try do
+      with key_map <- json_encoded_key_map |> Jason.decode!() do
+        key_map |> from_key_map()
+      end
+    rescue
+      _ -> {:error, :invalid_credential_public_key}
+    end
+  end
+
+  @spec from_key_map(key_map :: map) ::
+          WebAuthnLite.CredentialPublicKey.RS256.t()
+          | WebAuthnLite.CredentialPublicKey.ES256.t()
+          | {:error, :invalid_credential_public_key}
+  def from_key_map(key_map) do
+    try do
+      jwk = key_map |> JOSE.JWK.from_map()
+
+      case jwk.kty |> elem(0) do
+        :jose_jwk_kty_rsa -> jwk |> WebAuthnLite.CredentialPublicKey.RS256.from_jwk()
+        :jose_jwk_kty_ec -> jwk |> WebAuthnLite.CredentialPublicKey.ES256.from_jwk()
+        _ -> {:error, :invalid_credential_public_key}
+      end
+    rescue
+      _ -> {:error, :invalid_credential_public_key}
+    catch
+      _ -> {:error, :invalid_credential_public_key}
     end
   end
 end
