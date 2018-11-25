@@ -39,7 +39,7 @@ defmodule WebAuthnLite.Operation.Authenticate do
   @doc """
   Verify AuthenticatorResponse and return struct.
 
-  iex> {:ok, authenticator_data} = WebAuthnLite.Operation.Authenticate.validate_authenticator_response(%{signature: encoded_signature, authenticator_data: encoded_authenticator_data, client_data_json: encoded_client_data_json, public_key: public_key})
+  iex> {:ok, authenticator_data} = WebAuthnLite.Operation.Authenticate.validate_authenticator_assertion(%{signature: encoded_signature, authenticator_data: encoded_authenticator_data, client_data_json: encoded_client_data_json, public_key: public_key})
   """
   @spec validate_authenticator_assertion(params :: map) ::
           {:ok, authenticator_data :: WebAuthnLite.AuthenticatorData.t()} | {:error, term}
