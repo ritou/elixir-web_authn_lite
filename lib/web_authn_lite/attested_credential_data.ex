@@ -37,7 +37,7 @@ defmodule WebAuthnLite.AttestedCredentialData do
              18 + credential_id_length,
              byte_size(attested_credential_data) - credential_id_length - 18
            )
-           |> :cbor.decode()
+           |> Cbor.decode!()
            |> CredentialPublicKey.from_cbor_map() do
       {:ok,
        %__MODULE__{

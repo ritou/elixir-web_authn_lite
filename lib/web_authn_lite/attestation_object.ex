@@ -26,8 +26,8 @@ defmodule WebAuthnLite.AttestationObject do
   def decode(base64_url_encoded_attestation_object) do
     try do
       with raw <- base64_url_encoded_attestation_object |> Base.url_decode64!(padding: false),
-           %{"authData" => auth_data_binary, "fmt" => fmt, "attStmt" => att_stmt} <-
-             raw |> :cbor.decode(),
+           %{authData: auth_data_binary, fmt: fmt, attStmt: att_stmt} <-
+             raw |> Cbor.decode!(),
            {:ok, auth_data} <-
              auth_data_binary
              |> WebAuthnLite.AuthenticatorData.from_binary() do
@@ -40,7 +40,7 @@ defmodule WebAuthnLite.AttestationObject do
     rescue
       _ -> @rounded_error
     catch
-      # for :cbor.decode failed
+      # for Cbor.decode failed
       _ ->
         @rounded_error
     end

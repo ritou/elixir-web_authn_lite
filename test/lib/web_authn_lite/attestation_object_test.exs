@@ -13,14 +13,14 @@ defmodule WebAuthnLite.AttestationObjectTest do
     assert {:ok, attestation_object} =
              @es256_encoded_attestation_object |> AttestationObject.decode()
 
-    assert attestation_object.fmt == "packed"
+    assert attestation_object.fmt == :packed
     refute attestation_object.auth_data |> is_nil()
     # TODO: more tests
 
     assert {:ok, attestation_object} =
              @rs256_encoded_attestation_object |> AttestationObject.decode()
 
-    assert attestation_object.fmt == "packed"
+    assert attestation_object.fmt == :packed
     refute attestation_object.auth_data |> is_nil()
     # TODO: more tests
   end
