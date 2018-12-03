@@ -29,7 +29,7 @@ defmodule WebAuthnLite.MixProject do
     [
       {:jose, "~> 1.8"},
       {:jason, "~> 1.1"},
-      {:cbor, github: "yjh0502/cbor-erlang"} # Erlang CBOR library
+      {:cbor, github: "ritou/elixir-cbor", branch: "support-negative-integer"} # Elixir CBOR library
     ]
   end
 end
