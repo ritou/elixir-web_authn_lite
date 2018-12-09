@@ -28,7 +28,9 @@ defmodule WebAuthnLite.MixProject do
   defp deps do
     [
       {:jose, "~> 1.8"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 end
