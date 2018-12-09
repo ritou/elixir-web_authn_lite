@@ -8,7 +8,7 @@ defmodule WebAuthnLite.AttestationObject do
   * Handling AttestationStatement
   """
 
-  alias WebAuthnLite.AuthenticatorData
+  alias WebAuthnLite.{AuthenticatorData, CBOR}
 
   defstruct [:auth_data, :fmt, :att_stmt, :raw]
 
@@ -27,7 +27,7 @@ defmodule WebAuthnLite.AttestationObject do
     try do
       with raw <- base64_url_encoded_attestation_object |> Base.url_decode64!(padding: false),
            %{"authData" => auth_data_binary, "fmt" => fmt, "attStmt" => att_stmt} <-
-             raw |> :cbor.decode(),
+             raw |> CBOR.decode!(),
            {:ok, auth_data} <-
              auth_data_binary
              |> WebAuthnLite.AuthenticatorData.from_binary() do

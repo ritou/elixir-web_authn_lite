@@ -5,7 +5,7 @@ defmodule WebAuthnLite.AttestedCredentialData do
   https://www.w3.org/TR/webauthn/#sec-attested-credential-data
   """
 
-  alias WebAuthnLite.CredentialPublicKey
+  alias WebAuthnLite.{CredentialPublicKey, CBOR}
 
   defstruct [:aaguid, :credential_id, :credential_public_key, :raw]
 
@@ -37,7 +37,7 @@ defmodule WebAuthnLite.AttestedCredentialData do
              18 + credential_id_length,
              byte_size(attested_credential_data) - credential_id_length - 18
            )
-           |> :cbor.decode()
+           |> CBOR.decode!()
            |> CredentialPublicKey.from_cbor_map() do
       {:ok,
        %__MODULE__{
