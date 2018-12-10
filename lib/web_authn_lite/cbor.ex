@@ -41,7 +41,7 @@ defmodule WebAuthnLite.CBOR do
     {size, rest} = read_unsigned_integer(value)
 
     if size == 0 do
-      {%{}, <<>>}
+      {%{}, rest}
     else
       {map, rest} =
         Enum.reduce(1..size, {%{}, rest}, fn _, acc ->
