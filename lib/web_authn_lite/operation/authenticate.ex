@@ -5,7 +5,7 @@ defmodule WebAuthnLite.Operation.Authenticate do
   https://www.w3.org/TR/webauthn/#verifying-assertion
   """
 
-  alias WebAuthnLite.{ClientDataJSON, AuthenticatorData, Signature}
+  alias WebAuthnLite.{ClientDataJSON, AuthenticatorData, Signature, StorablePublicKey}
 
   @authentication_type "webauthn.get"
 
@@ -61,7 +61,7 @@ defmodule WebAuthnLite.Operation.Authenticate do
   ```
   """
   @spec validate_authenticator_assertion(params :: map) ::
-          {:ok, updated_storable_public_key :: WebAuthnLite.StorablePublicKey.t(),
+          {:ok, updated_storable_public_key :: StorablePublicKey.t(),
            authenticator_data :: WebAuthnLite.AuthenticatorData.t()}
           | {:error, term}
   def validate_authenticator_assertion(%{
