@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 (2018-12-11)
+
+* Return StorablePublicKey object on register/authenticate operations
+
 ## 0.1.2 (2018-12-11)
 
 * Add more validation for authenticator data
