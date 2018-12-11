@@ -10,6 +10,7 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
   @encoded_signature "MEQCIH22OhUJTVAdjFoNuxcjC4Vz0Ju4N1r378sA6v-DnMugAiAYoWx2s3j6C37Vgfz04Dq_lV9ybFL3JHySPLEXJGrRhw"
   @origin "http://localhost:4000"
   @challenge "I9_bvNCG3MzYzfG6WCO4caUU0rrclEMU2DLIgZeMGtw"
+  @rp_id "localhost"
 
   test "validate_client_data_json" do
     assert {:ok, _client_data_json} =
@@ -29,7 +30,11 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
                signature: @encoded_signature,
                authenticator_data: @encoded_authenticator_data,
                client_data_json: @encoded_client_data_json,
-               public_key: public_key
+               public_key: public_key,
+               rp_id: @rp_id,
+               up_required: true,
+               uv_required: false,
+               sign_count: 0
              })
   end
 end

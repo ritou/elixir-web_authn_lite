@@ -48,7 +48,9 @@ defmodule WebAuthnLite.Operation.Register do
     WebAuthnLite.Operation.Register.validate_attestation_object(%{
       attestation_object: encoded_attestation_object,
       client_data_json: encoded_client_data_json,
-      rp_id: rp_id
+      rp_id: rp_id,
+      up_required: true,
+      uv_required: false,
     })
   ```
   """
@@ -58,13 +60,21 @@ defmodule WebAuthnLite.Operation.Register do
         attestation_object: encoded_attestation_object,
         # for validate attestation
         client_data_json: _client_data_json,
-        rp_id: rp_id
+        rp_id: rp_id,
+        up_required: up_required,
+        uv_required: uv_required
       }) do
     case AttestationObject.decode(encoded_attestation_object) do
       {:ok, attestation_object} ->
         cond do
           !AuthenticatorData.valid_rp_id_hash?(rp_id, attestation_object.auth_data.rp_id_hash) ->
             {:error, :invalid_rp_id_hash}
+
+          up_required && !attestation_object.auth_data.flags.up ->
+            {:error, :up_required}
+
+          uv_required && !attestation_object.auth_data.flags.uv ->
+            {:error, :uv_required}
 
           true ->
             {:ok, attestation_object}

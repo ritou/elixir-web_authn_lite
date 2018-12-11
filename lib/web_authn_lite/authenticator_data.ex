@@ -70,7 +70,7 @@ defmodule WebAuthnLite.AuthenticatorData do
   end
 
   @spec valid_rp_id_hash?(rp_id :: String.t(), base64_url_encoded_rp_id_hash :: String.t()) ::
-          String.t()
+          boolean
   def valid_rp_id_hash?(rp_id, base64_url_encoded_rp_id_hash) do
     :crypto.hash(:sha256, rp_id) |> Base.url_encode64(padding: false) ==
       base64_url_encoded_rp_id_hash

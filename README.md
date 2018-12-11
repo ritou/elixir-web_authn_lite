@@ -45,7 +45,6 @@ Set Base64 URL decoded challenge and call `navigator.credentials.create()`
 
 Encode following params and send them to server-side.
 
-* `Id`
 * `clientDataJSON`
 * `attestationObject`
 
@@ -73,7 +72,10 @@ challenge = conn |> get_session(:webauthn_register_challenge)
 {:ok, attestation_object} = 
   WebAuthnLite.Operation.Register.validate_attestation_object(
     %{attestation_object: encoded_attestation_object,
-      client_data_json: encoded_client_data_json})
+      client_data_json: encoded_client_data_json,
+      rp_id: rp_id,
+      up_required: up_required,
+      uv_required: uv_required})
 ```
 
 ## 1.6. Store Credential.Id with account
@@ -84,7 +86,7 @@ challenge = conn |> get_session(:webauthn_register_challenge)
 pubkey = attestation_object.auth_data.attested_credential_data.credential_public_key
 
 # identifier
-pubkey_id = encoded_raw_id
+pubkey_id = attestation_object.auth_data.attested_credential_data.credential_id
 
 # key params
 pubkey_map = pubkey.map
@@ -117,7 +119,6 @@ Set Base64 URL decoded challenge and call `navigator.credentials.get()`
 
 Encode following params and send them to server-side.
 
-* `Id`
 * `clientDataJSON`
 * `authenticatorData`
 * `signature`
@@ -146,5 +147,9 @@ challenge = conn |> get_session(:webauthn_authn_challenge)
     %{signature: encoded_signature,
       authenticator_data: encoded_authenticator_data,
       client_data_json: encoded_client_data_json,
-      public_key: public_key})
+      public_key: public_key,
+      rp_id: rp_id,
+      up_required: up_required,
+      uv_required: uv_required,
+      sign_count: sign_count})
 ```

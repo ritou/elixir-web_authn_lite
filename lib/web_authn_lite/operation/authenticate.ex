@@ -15,7 +15,14 @@ defmodule WebAuthnLite.Operation.Authenticate do
   @doc """
   Verify clientDataJSON and return struct.
 
-  iex> {:ok, client_data_json} = WebAuthnLite.Operation.Authenticate.validate_client_data_json(%{client_data_json: encoded_client_data_json, origin: origin, challenge: challenge})
+  ```
+  {:ok, client_data_json} =
+    WebAuthnLite.Operation.Authenticate.validate_client_data_json(%{
+      client_data_json: encoded_client_data_json,
+      origin: origin,
+      challenge: challenge
+    })
+  ```
   """
   @spec validate_client_data_json(params :: map) ::
           {:ok, client_data_json :: ClientDataJSON.t()} | {:error, term}
@@ -39,7 +46,19 @@ defmodule WebAuthnLite.Operation.Authenticate do
   @doc """
   Verify AuthenticatorResponse and return struct.
 
-  iex> {:ok, authenticator_data} = WebAuthnLite.Operation.Authenticate.validate_authenticator_assertion(%{signature: encoded_signature, authenticator_data: encoded_authenticator_data, client_data_json: encoded_client_data_json, public_key: public_key})
+  ```
+  {:ok, authenticator_data} =
+    WebAuthnLite.Operation.Authenticate.validate_authenticator_assertion(%{
+      signature: encoded_signature,
+      authenticator_data: encoded_authenticator_data,
+      client_data_json: encoded_client_data_json,
+      public_key: public_key,
+      rp_id: rp_id,
+      up_required: true,
+      uv_required: false,
+      sign_count: sign_count
+    })
+  ```
   """
   @spec validate_authenticator_assertion(params :: map) ::
           {:ok, authenticator_data :: WebAuthnLite.AuthenticatorData.t()} | {:error, term}
@@ -47,14 +66,32 @@ defmodule WebAuthnLite.Operation.Authenticate do
         signature: encoded_signature,
         authenticator_data: encoded_authenticator_data,
         client_data_json: encoded_client_data_json,
-        public_key: public_key
+        public_key: public_key,
+        rp_id: rp_id,
+        up_required: up_required,
+        uv_required: uv_required,
+        sign_count: sign_count
       }) do
     with {:ok, authenticator_data} <- AuthenticatorData.decode(encoded_authenticator_data),
          {:ok, client_data_json} <- ClientDataJSON.decode(encoded_client_data_json) do
-      if Signature.valid?(encoded_signature, authenticator_data, client_data_json, public_key) do
-        {:ok, authenticator_data}
-      else
-        {:error, :invalid_signature}
+      cond do
+        !Signature.valid?(encoded_signature, authenticator_data, client_data_json, public_key) ->
+          {:error, :invalid_signature}
+
+        !AuthenticatorData.valid_rp_id_hash?(rp_id, authenticator_data.rp_id_hash) ->
+          {:error, :invalid_rp_id_hash}
+
+        up_required && !authenticator_data.flags.up ->
+          {:error, :up_required}
+
+        uv_required && !authenticator_data.flags.uv ->
+          {:error, :uv_required}
+
+        sign_count >= authenticator_data.sign_count ->
+          {:error, :invalid_sign_count}
+
+        true ->
+          {:ok, authenticator_data}
       end
     else
       {:error, _} = invalid -> invalid

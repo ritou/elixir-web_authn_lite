@@ -25,14 +25,27 @@ defmodule WebAuthnLite.Operation.RegisterTest do
              Register.validate_attestation_object(%{
                attestation_object: @encoded_attestation_object,
                client_data_json: @encoded_client_data_json,
-               rp_id: @rp_id
+               rp_id: @rp_id,
+               up_required: true,
+               uv_required: false
              })
 
-    assert {:error, :invalid_rp_id_hash} =
+    assert {:error, :invalid_rp_id_hash} ==
              Register.validate_attestation_object(%{
                attestation_object: @encoded_attestation_object,
                client_data_json: @encoded_client_data_json,
-               rp_id: @rp_id_invalid
+               rp_id: @rp_id_invalid,
+               up_required: true,
+               uv_required: false
+             })
+
+    assert {:error, :uv_required} ==
+             Register.validate_attestation_object(%{
+               attestation_object: @encoded_attestation_object,
+               client_data_json: @encoded_client_data_json,
+               rp_id: @rp_id,
+               up_required: true,
+               uv_required: true
              })
   end
 end
