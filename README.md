@@ -69,7 +69,7 @@ challenge = conn |> get_session(:webauthn_register_challenge)
 ### Server-side
 
 ```Elixir
-{:ok, attestation_object} = 
+{:ok, storable_public_key, attestation_object} = 
   WebAuthnLite.Operation.Register.validate_attestation_object(
     %{attestation_object: encoded_attestation_object,
       client_data_json: encoded_client_data_json,

@@ -5,7 +5,7 @@ defmodule WebAuthnLite.Operation.Register do
   https://www.w3.org/TR/webauthn/#registering-a-new-credential
   """
 
-  alias WebAuthnLite.{ClientDataJSON, AttestationObject, AuthenticatorData}
+  alias WebAuthnLite.{ClientDataJSON, AttestationObject, AuthenticatorData, StorablePublicKey}
 
   @registration_type "webauthn.create"
 
@@ -44,7 +44,7 @@ defmodule WebAuthnLite.Operation.Register do
   # NOTE: This function doesn't verify attestation statement yet.
 
   ```
-  {:ok, attestation_object} =
+  {:ok, storable_public_key} =
     WebAuthnLite.Operation.Register.validate_attestation_object(%{
       attestation_object: encoded_attestation_object,
       client_data_json: encoded_client_data_json,
@@ -55,7 +55,9 @@ defmodule WebAuthnLite.Operation.Register do
   ```
   """
   @spec validate_attestation_object(params :: map) ::
-          {:ok, attestation_object :: AttestationObject.t()} | {:error, term}
+          {:ok, storable_public_key :: StorablePublicKey.t(),
+           attestation_object :: AttestationObject.t()}
+          | {:error, term}
   def validate_attestation_object(%{
         attestation_object: encoded_attestation_object,
         # for validate attestation
@@ -77,7 +79,13 @@ defmodule WebAuthnLite.Operation.Register do
             {:error, :uv_required}
 
           true ->
-            {:ok, attestation_object}
+            {:ok,
+             %StorablePublicKey{
+               credential_id: attestation_object.auth_data.attested_credential_data.credential_id,
+               public_key:
+                 attestation_object.auth_data.attested_credential_data.credential_public_key,
+               sign_count: attestation_object.auth_data.sign_count
+             }, attestation_object}
         end
 
       {:error, _} = invalid ->

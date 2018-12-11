@@ -1,6 +1,7 @@
 defmodule WebAuthnLite.Operation.RegisterTest do
   use ExUnit.Case, async: false
 
+  alias WebAuthnLite.StorablePublicKey
   alias WebAuthnLite.Operation.Register
   # doctest Register
 
@@ -21,7 +22,7 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   end
 
   test "validate_attestation_object" do
-    assert {:ok, _attestation_object} =
+    assert {:ok, storable_public_key = %StorablePublicKey{}, _attestation_object} =
              Register.validate_attestation_object(%{
                attestation_object: @encoded_attestation_object,
                client_data_json: @encoded_client_data_json,
