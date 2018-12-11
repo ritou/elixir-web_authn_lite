@@ -1,6 +1,7 @@
 defmodule WebAuthnLite.Operation.AuthenticateTest do
   use ExUnit.Case, async: false
 
+  alias WebAuthnLite.StorablePublicKey
   alias WebAuthnLite.Operation.Authenticate
   # doctest Authenticate
 
@@ -11,6 +12,7 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
   @origin "http://localhost:4000"
   @challenge "I9_bvNCG3MzYzfG6WCO4caUU0rrclEMU2DLIgZeMGtw"
   @rp_id "localhost"
+  @credential_id "MgFGjKKG-M1k5HbJ-Ms-Gw"
 
   test "validate_client_data_json" do
     assert {:ok, _client_data_json} =
@@ -23,18 +25,23 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
 
   test "validate_authenticator_assertion" do
     {:ok, attestation_object} = WebAuthnLite.AttestationObject.decode(@encoded_attestation_object)
-    public_key = attestation_object.auth_data.attested_credential_data.credential_public_key
+
+    storable_public_key = %StorablePublicKey{
+      credential_id: attestation_object.auth_data.attested_credential_data.credential_id,
+      public_key: attestation_object.auth_data.attested_credential_data.credential_public_key,
+      sign_count: attestation_object.auth_data.sign_count
+    }
 
     assert {:ok, _authenticator_data} =
              Authenticate.validate_authenticator_assertion(%{
+               credential_id: @credential_id,
                signature: @encoded_signature,
                authenticator_data: @encoded_authenticator_data,
                client_data_json: @encoded_client_data_json,
-               public_key: public_key,
+               public_keys: [storable_public_key],
                rp_id: @rp_id,
                up_required: true,
-               uv_required: false,
-               sign_count: 0
+               uv_required: false
              })
   end
 end
