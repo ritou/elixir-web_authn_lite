@@ -5,7 +5,7 @@ defmodule WebAuthnLite.Operation.Register do
   https://www.w3.org/TR/webauthn/#registering-a-new-credential
   """
 
-  alias WebAuthnLite.{ClientDataJSON, AttestationObject}
+  alias WebAuthnLite.{ClientDataJSON, AttestationObject, AuthenticatorData}
 
   @registration_type "webauthn.create"
 
@@ -15,7 +15,14 @@ defmodule WebAuthnLite.Operation.Register do
   @doc """
   Verify clientDataJSON and return struct.
 
-  iex> {:ok, client_data_json} = WebAuthnLite.Operation.Register.validate_client_data_json(%{client_data_json: encoded_client_data_json, origin: origin, challenge: challenge})
+  ```
+  {:ok, client_data_json} =
+    WebAuthnLite.Operation.Register.validate_client_data_json(%{
+      client_data_json: encoded_client_data_json,
+      origin: origin,
+      challenge: challenge
+    })
+  ```
   """
   @spec validate_client_data_json(params :: map) ::
           {:ok, client_data_json :: ClientDataJSON.t()} | {:error, term}
@@ -36,18 +43,38 @@ defmodule WebAuthnLite.Operation.Register do
 
   # NOTE: This function doesn't verify attestation statement yet.
 
-  iex> {:ok, attestation_object} = WebAuthnLite.Operation.Register.validate_attestation_object(%{attestation_object: encoded_attestation_object, client_data_json: encoded_client_data_json})
+  ```
+  {:ok, attestation_object} =
+    WebAuthnLite.Operation.Register.validate_attestation_object(%{
+      attestation_object: encoded_attestation_object,
+      client_data_json: encoded_client_data_json,
+      rp_id: rp_id
+    })
+  ```
   """
   @spec validate_attestation_object(params :: map) ::
           {:ok, attestation_object :: AttestationObject.t()} | {:error, term}
   def validate_attestation_object(%{
         attestation_object: encoded_attestation_object,
-        client_data_json: _client_data_json
+        # for validate attestation
+        client_data_json: _client_data_json,
+        rp_id: rp_id
       }) do
     case AttestationObject.decode(encoded_attestation_object) do
-      {:ok, _attestation_object} = valid -> valid
-      {:error, _} = invalid -> invalid
-      _ -> @rounded_error_attestation_object
+      {:ok, attestation_object} ->
+        cond do
+          !AuthenticatorData.valid_rp_id_hash?(rp_id, attestation_object.auth_data.rp_id_hash) ->
+            {:error, :invalid_rp_id_hash}
+
+          true ->
+            {:ok, attestation_object}
+        end
+
+      {:error, _} = invalid ->
+        invalid
+
+      _ ->
+        @rounded_error_attestation_object
     end
   end
 end

@@ -42,7 +42,9 @@ defmodule WebAuthnLite.AuthenticatorData do
         attested_credential_data =
           if flags.at && !flags.ed,
             do:
-              raw |> :binary.part(37, byte_size(raw) - 37) |> AttestedCredentialData.from_binary()
+              raw
+              |> :binary.part(37, byte_size(raw) - 37)
+              |> AttestedCredentialData.from_binary()
               |> elem(1),
             else: nil
 
@@ -67,8 +69,10 @@ defmodule WebAuthnLite.AuthenticatorData do
     end
   end
 
-  @spec rp_id_hash(rp_id :: String.t()) :: String.t()
-  def rp_id_hash(rp_id) do
-    :crypto.hash(:sha256, rp_id) |> Base.url_encode64(padding: false)
+  @spec valid_rp_id_hash?(rp_id :: String.t(), base64_url_encoded_rp_id_hash :: String.t()) ::
+          String.t()
+  def valid_rp_id_hash?(rp_id, base64_url_encoded_rp_id_hash) do
+    :crypto.hash(:sha256, rp_id) |> Base.url_encode64(padding: false) ==
+      base64_url_encoded_rp_id_hash
   end
 end

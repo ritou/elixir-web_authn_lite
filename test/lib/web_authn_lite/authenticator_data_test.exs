@@ -44,8 +44,15 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     refute is_nil(authenticator_data.attested_credential_data)
   end
 
-  test "rp_id_hash" do
-    assert "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2M" ==
-             AuthenticatorData.rp_id_hash("localhost")
+  test "valid_rp_id_hash?" do
+    assert AuthenticatorData.valid_rp_id_hash?(
+             "localhost",
+             "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2M"
+           )
+
+    refute AuthenticatorData.valid_rp_id_hash?(
+             "example.com",
+             "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2M"
+           )
   end
 end

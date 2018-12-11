@@ -8,6 +8,8 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   @encoded_client_data_json "eyJjaGFsbGVuZ2UiOiJCaXo1emxMTU9Cc3M3bWhnaDBOZUR3U0JmU0RBd3RCUmRJWllOWVFMRVlrIiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDo0MDAwIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9"
   @origin "http://localhost:4000"
   @challenge "Biz5zlLMOBss7mhgh0NeDwSBfSDAwtBRdIZYNYQLEYk"
+  @rp_id "localhost"
+  @rp_id_invalid "localhost2"
 
   test "validate_client_data_json" do
     assert {:ok, _client_data_json} =
@@ -22,7 +24,15 @@ defmodule WebAuthnLite.Operation.RegisterTest do
     assert {:ok, _attestation_object} =
              Register.validate_attestation_object(%{
                attestation_object: @encoded_attestation_object,
-               client_data_json: @encoded_client_data_json
+               client_data_json: @encoded_client_data_json,
+               rp_id: @rp_id
+             })
+
+    assert {:error, :invalid_rp_id_hash} =
+             Register.validate_attestation_object(%{
+               attestation_object: @encoded_attestation_object,
+               client_data_json: @encoded_client_data_json,
+               rp_id: @rp_id_invalid
              })
   end
 end
