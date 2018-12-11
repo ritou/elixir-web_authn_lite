@@ -61,7 +61,9 @@ defmodule WebAuthnLite.Operation.Authenticate do
   ```
   """
   @spec validate_authenticator_assertion(params :: map) ::
-          {:ok, authenticator_data :: WebAuthnLite.AuthenticatorData.t()} | {:error, term}
+          {:ok, updated_storable_public_key :: WebAuthnLite.StorablePublicKey.t(),
+           authenticator_data :: WebAuthnLite.AuthenticatorData.t()}
+          | {:error, term}
   def validate_authenticator_assertion(%{
         # from navigator.credentials.get() results
         credential_id: credential_id,
@@ -99,7 +101,12 @@ defmodule WebAuthnLite.Operation.Authenticate do
           {:error, :invalid_sign_count}
 
         true ->
-          {:ok, authenticator_data}
+          {:ok,
+           %StorablePublicKey{
+             credential_id: public_key.credential_id,
+             public_key: public_key.public_key,
+             sign_count: authenticator_data.sign_count
+           }, authenticator_data}
       end
     else
       {:error, _} = invalid -> invalid

@@ -142,7 +142,7 @@ challenge = conn |> get_session(:webauthn_authn_challenge)
 ## 2.5. Validate authenticatorData
 
 ```Elixir
-{:ok, authenticator_data} =
+{:ok, updated_storable_public_key, authenticator_data} =
   WebAuthnLite.Operation.Authenticate.validate_authenticator_assertion(
     %{credential_id: credential_id,
       signature: encoded_signature,

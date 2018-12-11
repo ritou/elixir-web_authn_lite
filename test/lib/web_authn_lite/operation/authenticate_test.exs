@@ -32,7 +32,7 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
       sign_count: attestation_object.auth_data.sign_count
     }
 
-    assert {:ok, _authenticator_data} =
+    assert {:ok, updated_storable_public_key, _authenticator_data} =
              Authenticate.validate_authenticator_assertion(%{
                credential_id: @credential_id,
                signature: @encoded_signature,
@@ -43,5 +43,7 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
                up_required: true,
                uv_required: false
              })
+
+    assert updated_storable_public_key.sign_count > storable_public_key.sign_count
   end
 end
