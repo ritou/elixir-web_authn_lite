@@ -4,7 +4,7 @@ defmodule WebAuthnLite.MixProject do
   def project do
     [
       app: :web_authn_lite,
-      version: "0.1.5",
+      version: "0.2.1",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       description:

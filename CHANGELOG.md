@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 (2022-06-30)
+
+* Fixed encoding problem in public key generation (thanks to @tashirosota)
+
 ## 0.1.5 (2022-06-30)
 
 * Fix Signature Counter handling logic
