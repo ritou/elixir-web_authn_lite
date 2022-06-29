@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 (2022-03-09)
+
+* Replaces traves to actions and upgrades supported versions. (thanks to @tashirosota)
+
 ## 0.1.3 (2018-12-11)
 
 * Return StorablePublicKey object on register/authenticate operations
