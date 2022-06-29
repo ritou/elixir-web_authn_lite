@@ -33,8 +33,8 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
     assert credential_public_key.map == %{
              "crv" => "P-256",
              "kty" => "EC",
-             "x" => "IXUM4qBXox++h7XwLrTlN4oPj+8bE27wjXlEZIRHL4k",
-             "y" => "RZZaqWUhhkVE4Gy040efx+KFK9EiSJt6BOufZubFcVM"
+             "x" => "IXUM4qBXox--h7XwLrTlN4oPj-8bE27wjXlEZIRHL4k",
+             "y" => "RZZaqWUhhkVE4Gy040efx-KFK9EiSJt6BOufZubFcVM"
            }
 
     refute is_nil(credential_public_key.json)
@@ -55,7 +55,7 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
              "e" => "AQAB",
              "kty" => "RSA",
              "n" =>
-               "zPseSvwtNvc1pPTF7Dd3+GGPjGrvapRHSMaXcQ5YqdZldl2M2LAaun3jE0/r3moNTX+L4PaRTB544b4BMO5VXGtxPPIxj1ydwdYGkL+7ziUYXaCLg+TLd3bALvaJjJjzd69SIE20kVGOdH5BGYkJhW7vm1SJpOMsZbbrUiCAuG/XDX9rasZXAaoplAl9qQCX/MQwiWFLH6bTuMTbOaiHw61og486NaiG+z+muUWAknxQnnCPa6DNXs+GIh00EBcm8sqjTnE086dyNYiz3INwPcd8ejsDbapLH+LLmjT5ofF0xfAWtcOtJlpga6yPHlTQqBzEz2vqUip0PjClABu9TQ"
+               "zPseSvwtNvc1pPTF7Dd3-GGPjGrvapRHSMaXcQ5YqdZldl2M2LAaun3jE0_r3moNTX-L4PaRTB544b4BMO5VXGtxPPIxj1ydwdYGkL-7ziUYXaCLg-TLd3bALvaJjJjzd69SIE20kVGOdH5BGYkJhW7vm1SJpOMsZbbrUiCAuG_XDX9rasZXAaoplAl9qQCX_MQwiWFLH6bTuMTbOaiHw61og486NaiG-z-muUWAknxQnnCPa6DNXs-GIh00EBcm8sqjTnE086dyNYiz3INwPcd8ejsDbapLH-LLmjT5ofF0xfAWtcOtJlpga6yPHlTQqBzEz2vqUip0PjClABu9TQ"
            }
 
     refute is_nil(credential_public_key.json)
