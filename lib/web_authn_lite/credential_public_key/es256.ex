@@ -15,8 +15,8 @@ defmodule WebAuthnLite.CredentialPublicKey.ES256 do
     with key_map <- %{
            "kty" => "EC",
            "crv" => "P-256",
-           "x" => cbor_map[-2] |> Base.encode64(padding: false),
-           "y" => cbor_map[-3] |> Base.encode64(padding: false)
+           "x" => cbor_map[-2] |> Base.url_encode64(padding: false),
+           "y" => cbor_map[-3] |> Base.url_encode64(padding: false)
          },
          {@jose_jwk_kty, key} <- JOSE.JWK.from_map(key_map).kty do
       %__MODULE__{digest_type: :sha256, key: key, map: key_map, json: key_map |> Jason.encode!()}
