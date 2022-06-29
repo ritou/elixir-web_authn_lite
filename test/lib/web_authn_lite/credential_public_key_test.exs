@@ -44,6 +44,16 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
 
     credential_public_key_from_map = CredentialPublicKey.from_key_map(credential_public_key.map)
     assert credential_public_key_from_map.key == credential_public_key.key
+
+    # INVALID JWK Format
+    credential_public_key_from_json =
+      CredentialPublicKey.from_json(
+        credential_public_key.json
+        |> String.replace("-", "+")
+        |> String.replace("_", "/")
+      )
+
+    assert credential_public_key_from_json.key == credential_public_key.key
   end
 
   test "RS256" do
@@ -65,5 +75,15 @@ defmodule WebAuthnLite.CredentialPublicKeyTest do
 
     credential_public_key_from_map = CredentialPublicKey.from_key_map(credential_public_key.map)
     assert credential_public_key_from_map.key == credential_public_key.key
+
+    # INVALID JWK Format
+    credential_public_key_from_json =
+      CredentialPublicKey.from_json(
+        credential_public_key.json
+        |> String.replace("-", "+")
+        |> String.replace("_", "/")
+      )
+
+    assert credential_public_key_from_json.key == credential_public_key.key
   end
 end
