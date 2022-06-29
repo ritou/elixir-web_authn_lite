@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 (2022-06-30)
+
+* Fix Signature Counter handling logic
+
 ## 0.1.4 (2022-03-09)
 
 * Replaces traves to actions and upgrades supported versions. (thanks to @tashirosota)
