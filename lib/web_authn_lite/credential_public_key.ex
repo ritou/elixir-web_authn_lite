@@ -47,7 +47,8 @@ defmodule WebAuthnLite.CredentialPublicKey do
           | {:error, :invalid_credential_public_key}
   def from_key_map(key_map) do
     try do
-      jwk = key_map |> JOSE.JWK.from_map()
+      # Convert to Base64URL Encode format for compatibility with encoding issues in past versions
+      jwk = key_map |> convert_key_map_to_base64url_encoding() |> JOSE.JWK.from_map()
 
       case jwk.kty |> elem(0) do
         :jose_jwk_kty_rsa -> jwk |> WebAuthnLite.CredentialPublicKey.RS256.from_jwk()
@@ -59,5 +60,11 @@ defmodule WebAuthnLite.CredentialPublicKey do
     catch
       _ -> {:error, :invalid_credential_public_key}
     end
+  end
+
+  defp convert_key_map_to_base64url_encoding(key_map) do
+    for {k, v} <- key_map,
+        into: %{},
+        do: {k, v |> String.replace("+", "-") |> String.replace("/", "_")}
   end
 end
