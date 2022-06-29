@@ -97,7 +97,8 @@ defmodule WebAuthnLite.Operation.Authenticate do
         uv_required && !authenticator_data.flags.uv ->
           {:error, :uv_required}
 
-        public_key.sign_count >= authenticator_data.sign_count ->
+        public_key.sign_count > 0 && authenticator_data.sign_count > 0 &&
+            public_key.sign_count >= authenticator_data.sign_count ->
           {:error, :invalid_sign_count}
 
         true ->
