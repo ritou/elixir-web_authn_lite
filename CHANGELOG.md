@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (2022-06-30)
+## 0.2.1 (2022-06-30)
 
 * Fixed encoding problem in public key generation (thanks to @tashirosota)
 
