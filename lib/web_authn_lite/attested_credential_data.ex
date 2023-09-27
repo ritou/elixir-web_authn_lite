@@ -24,12 +24,18 @@ defmodule WebAuthnLite.AttestedCredentialData do
   # MEMO: aaguid list management
   # Identify the Authenticator Name using publicly available metadata
   # - passkey: https://raw.githubusercontent.com/passkeydeveloper/passkey-authenticator-aaguids/main/aaguid.json
-  # TODO: Parsing and using FIDO MDS data?
+  # - security key: https://mds3.fidoalliance.org/
   @passkey_aaguid_file_name "passkey_aaguid.json"
   @passkey_aaguid_list :code.priv_dir(:web_authn_lite)
                        |> Path.join(@passkey_aaguid_file_name)
                        |> File.read!()
                        |> Jason.decode!()
+
+  @mds_aaguid_file_name "mds_aaguid.json"
+  @mds_aaguid_list :code.priv_dir(:web_authn_lite)
+                   |> Path.join(@mds_aaguid_file_name)
+                   |> File.read!()
+                   |> Jason.decode!()
 
   @unknown_aaguid "00000000-0000-0000-0000-000000000000"
 
@@ -91,6 +97,8 @@ defmodule WebAuthnLite.AttestedCredentialData do
     cond do
       # passkey
       Map.has_key?(@passkey_aaguid_list, aaguid) -> @passkey_aaguid_list[aaguid]["name"]
+      # MDS
+      Map.has_key?(@mds_aaguid_list, aaguid) -> @mds_aaguid_list[aaguid]["name"]
       true -> nil
     end
   end
