@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 (2023-09-28)
+
+* Update aaguid handling
+
 ## 0.2.1 (2022-06-30)
 
 * Fixed encoding problem in public key generation (thanks to @tashirosota)

@@ -4,8 +4,8 @@ defmodule WebAuthnLite.MixProject do
   def project do
     [
       app: :web_authn_lite,
-      version: "0.2.1",
-      elixir: "~> 1.10",
+      version: "0.3.0",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       description:
         "WebAuthnLite is W3C Web Authentication API (a.k.a. WebAuthN / FIDO 2.0) RP library in Elixir.",
