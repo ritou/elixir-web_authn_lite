@@ -34,7 +34,10 @@ defmodule WebAuthnLite.AttestationObjectTest do
 
     assert attestation_object.fmt == "none"
     refute attestation_object.auth_data |> is_nil()
-    assert attestation_object.auth_data.attested_credential_data.aaguid == "bada5566-a7aa-401f-bd96-45619a55120d"
+
+    assert attestation_object.auth_data.attested_credential_data.aaguid ==
+             "bada5566-a7aa-401f-bd96-45619a55120d"
+
     assert attestation_object.auth_data.attested_credential_data.authenticator_name == "1Password"
     # TODO: more tests
   end
