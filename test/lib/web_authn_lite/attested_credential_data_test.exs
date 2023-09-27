@@ -8,10 +8,12 @@ defmodule WebAuthnLite.AttestedCredentialDataTest do
 
   test "from_binary" do
     assert {:ok, attested_credential_data} =
-             @encoded_attested_credential_data |> Base.url_decode64!(padding: false)
+             @encoded_attested_credential_data
+             |> Base.url_decode64!(padding: false)
              |> AttestedCredentialData.from_binary()
 
-    assert attested_credential_data.aaguid == "-KAR84wKTRWABhcRH57cfQ"
+    assert attested_credential_data.aaguid == "f8a011f3-8c0a-4d15-8006-17111f9edc7d"
+    assert attested_credential_data.authenticator_name == "Security Key by Yubico"
     assert attested_credential_data.credential_id == "MgFGjKKG-M1k5HbJ-Ms-Gw"
     refute is_nil(attested_credential_data.credential_public_key)
 
