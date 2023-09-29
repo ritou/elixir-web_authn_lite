@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2023-09-29)
+
+* Support BE, BS flags
+
 ## 0.3.0 (2023-09-28)
 
 * Update aaguid handling
