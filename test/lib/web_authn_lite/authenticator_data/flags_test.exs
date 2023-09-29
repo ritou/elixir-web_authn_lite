@@ -8,55 +8,98 @@ defmodule WebAuthnLite.AuthenticatorData.FlagsTest do
             %Flags{
               ed: true,
               at: true,
+              bs: true,
+              be: true,
               uv: true,
               up: true,
-              flags: <<207>>
+              flags: <<221>>
             }} ==
-             <<1::size(1), 1::size(1), 1::size(3), 1::size(1), 1::size(1), 1::size(1)>>
+             <<1::size(1), 1::size(1), 0::size(1), 1::size(1), 1::size(1), 1::size(1), 0::size(1),
+               1::size(1)>>
              |> Flags.from_binary()
 
     assert {:ok,
             %Flags{
               ed: false,
               at: true,
+              bs: true,
+              be: true,
               uv: true,
               up: true,
-              flags: "O"
+              flags: <<93>>
             }} ==
-             <<0::size(1), 1::size(1), 1::size(3), 1::size(1), 1::size(1), 1::size(1)>>
+             <<0::size(1), 1::size(1), 0::size(1), 1::size(1), 1::size(1), 1::size(1), 0::size(1),
+               1::size(1)>>
              |> Flags.from_binary()
 
     assert {:ok,
             %Flags{
               ed: false,
               at: false,
+              bs: true,
+              be: true,
               uv: true,
               up: true,
-              flags: <<15>>
+              flags: <<29>>
             }} ==
-             <<0::size(1), 0::size(1), 1::size(3), 1::size(1), 1::size(1), 1::size(1)>>
+             <<0::size(1), 0::size(1), 0::size(1), 1::size(1), 1::size(1), 1::size(1), 0::size(1),
+               1::size(1)>>
              |> Flags.from_binary()
 
     assert {:ok,
             %Flags{
               ed: false,
               at: false,
+              bs: false,
+              be: true,
+              uv: true,
+              up: true,
+              flags: <<13>>
+            }} ==
+             <<0::size(1), 0::size(1), 0::size(1), 0::size(1), 1::size(1), 1::size(1), 0::size(1),
+               1::size(1)>>
+             |> Flags.from_binary()
+
+    assert {:ok,
+            %Flags{
+              ed: false,
+              at: false,
+              bs: false,
+              be: false,
+              uv: true,
+              up: true,
+              flags: <<5>>
+            }} ==
+             <<0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1), 1::size(1), 0::size(1),
+               1::size(1)>>
+             |> Flags.from_binary()
+
+    assert {:ok,
+            %Flags{
+              ed: false,
+              at: false,
+              bs: false,
+              be: false,
               uv: false,
               up: true,
-              flags: <<3>>
+              flags: <<1>>
             }} ==
-             <<0::size(1), 0::size(1), 0::size(3), 0::size(1), 1::size(1), 1::size(1)>>
+             <<0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1),
+               1::size(1)>>
              |> Flags.from_binary()
 
     assert {:ok,
             %Flags{
               ed: false,
               at: false,
+              bs: false,
+              be: false,
               uv: false,
               up: false,
               flags: <<0>>
             }} ==
-             <<0::size(1), 0::size(1), 0::size(3), 0::size(1), 0::size(1), 0::size(1)>>
+             <<0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1), 0::size(1),
+               0::size(1)>>
              |> Flags.from_binary()
   end
 end

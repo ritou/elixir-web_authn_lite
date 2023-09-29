@@ -18,6 +18,8 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     assert authenticator_data == %WebAuthnLite.AuthenticatorData{
              flags: %Flags{
                at: false,
+               be: false,
+               bs: false,
                ed: false,
                flags: <<1>>,
                up: true,
