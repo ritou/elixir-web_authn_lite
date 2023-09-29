@@ -26,9 +26,7 @@ defmodule WebAuthnLite.AuthenticatorData.Flags do
   def from_binary(flags) do
     with true <- flags |> byte_size() == @flags_byte_size,
          <<ed::size(1), at::size(1), _rfu2::size(1), bs::size(1), be::size(1), uv::size(1),
-           _rfu1::size(1),
-           up::size(1)>> <-
-           flags do
+           _rfu1::size(1), up::size(1)>> <- flags do
       {:ok,
        %__MODULE__{
          flags: flags,
