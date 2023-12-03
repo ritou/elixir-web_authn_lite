@@ -30,6 +30,10 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   @encoded_attestation_object_1password "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViUo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAALraVWanqkAfvZZFYZpVEg0AEGBXeEQ8yxQazz5IPwZqhE2lAQIDJiABIVggvWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzIiWCDXAfwyGybtPLjHWFj0vR7bWVq6RvNuEq4xGW9Mf6eCcw"
   @encoded_client_data_json_1password "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20ifQ"
 
+  # Titan Security Key
+  @encoded_attestation_object_titan "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViio3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUfFAAAABAAAAAAAAAAAAAAAAAAAAAAAEAABALkUNLt3WUXkiu0RtI2lAQIDJiABIVggyWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmoiWCDLAU9vy_ZOkd_Gz_1auXTDxRSJhNsPdyiYcIV_gWnCjKFrY3JlZFByb3RlY3QC"
+  @encoded_client_data_json_titan "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -289,6 +293,81 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                    extensions: nil
                  },
                  extensions: nil
+               },
+               fmt: "none",
+               att_stmt: %{},
+               raw: _
+             } = attestation_object
+    end
+
+    test "titan" do
+      assert {:ok, _client_data_json} =
+               Register.validate_client_data_json(%{
+                 client_data_json: @encoded_client_data_json_titan,
+                 origin: @sample_origin,
+                 challenge: @sample_challenge
+               })
+
+      assert {:ok, storable_public_key = %StorablePublicKey{}, attestation_object} =
+               Register.validate_attestation_object(%{
+                 attestation_object: @encoded_attestation_object_titan,
+                 client_data_json: @encoded_client_data_json_titan,
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: false
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "AAEAuRQ0u3dZReSK7RG0jQ",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo",
+                   "y" => "ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo\",\"y\":\"ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow\"}"
+               },
+               sign_count: 4
+             } = storable_public_key
+
+      assert %WebAuthnLite.AttestationObject{
+               auth_data: %WebAuthnLite.AuthenticatorData{
+                 rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+                 flags: %WebAuthnLite.AuthenticatorData.Flags{
+                   flags: <<197>>,
+                   up: true,
+                   uv: true,
+                   be: false,
+                   bs: false,
+                   at: true,
+                   ed: true
+                 },
+                 sign_count: 4,
+                 raw: _,
+                 attested_credential_data: %WebAuthnLite.AttestedCredentialData{
+                   aaguid: "00000000-0000-0000-0000-000000000000",
+                   authenticator_name: nil,
+                   credential_id: "AAEAuRQ0u3dZReSK7RG0jQ",
+                   credential_public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                     key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                     digest_type: :sha256,
+                     map: %{
+                       "crv" => "P-256",
+                       "kty" => "EC",
+                       "x" => "yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo",
+                       "y" => "ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow"
+                     },
+                     json:
+                       "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo\",\"y\":\"ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow\"}"
+                   },
+                   raw: _,
+                   extensions: %{"credProtect" => 2}
+                 },
+                 extensions: %{"credProtect" => 2}
                },
                fmt: "none",
                att_stmt: %{},

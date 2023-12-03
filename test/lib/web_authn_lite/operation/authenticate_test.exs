@@ -36,6 +36,12 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
   @encoded_client_data_json_1password "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20ifQ"
   @encoded_signature_1password "MEUCIQD59PjH7DGr7GkKlJf2LRj-JtAwEgq1Q2KEPXmgsqumZgIgQBxKCXTFq1PH81cgN8I_zWPNlKJ5-9TPdwgm-y_FeRA"
 
+  # Titan Security Key
+  @encoded_attestation_object_titan "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViio3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUfFAAAABAAAAAAAAAAAAAAAAAAAAAAAEAABALkUNLt3WUXkiu0RtI2lAQIDJiABIVggyWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmoiWCDLAU9vy_ZOkd_Gz_1auXTDxRSJhNsPdyiYcIV_gWnCjKFrY3JlZFByb3RlY3QC"
+  @encoded_authenticator_data_titan "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUcFAAAADA"
+  @encoded_client_data_json_titan "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
+  @encoded_signature_titan "MEMCH3Dok-D_nk2xc6EmAMZuUAOXjtPQP3iwA058v8dG4DcCIGckHG757nZSfny5f9Q1frDB5M1i6182a-OgA9stR7zr"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -241,6 +247,63 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
                  ed: false
                },
                sign_count: 0,
+               raw: _,
+               attested_credential_data: nil,
+               extensions: nil
+             } = authenticator_data
+    end
+
+    test "titan" do
+      {:ok, attestation_object} =
+        WebAuthnLite.AttestationObject.decode(@encoded_attestation_object_titan)
+
+      storable_public_key = %StorablePublicKey{
+        credential_id: attestation_object.auth_data.attested_credential_data.credential_id,
+        public_key: attestation_object.auth_data.attested_credential_data.credential_public_key,
+        sign_count: attestation_object.auth_data.sign_count
+      }
+
+      assert {:ok, updated_storable_public_key, authenticator_data} =
+               Authenticate.validate_authenticator_assertion(%{
+                 credential_id: storable_public_key.credential_id,
+                 signature: @encoded_signature_titan,
+                 authenticator_data: @encoded_authenticator_data_titan,
+                 client_data_json: @encoded_client_data_json_titan,
+                 public_keys: [storable_public_key],
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: true
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "AAEAuRQ0u3dZReSK7RG0jQ",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo",
+                   "y" => "ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"yWB-u2ZIJnvTOIH-hKxya4JkDJNPj6wapbzsYA_7jmo\",\"y\":\"ywFPb8v2TpHfxs_9Wrl0w8UUiYTbD3comHCFf4Fpwow\"}"
+               },
+               sign_count: 12
+             } = updated_storable_public_key
+
+      assert %WebAuthnLite.AuthenticatorData{
+               rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+               flags: %WebAuthnLite.AuthenticatorData.Flags{
+                 flags: <<5>>,
+                 up: true,
+                 uv: true,
+                 be: false,
+                 bs: false,
+                 at: false,
+                 ed: false
+               },
+               sign_count: 12,
                raw: _,
                attested_credential_data: nil,
                extensions: nil
