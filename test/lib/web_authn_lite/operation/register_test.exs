@@ -26,6 +26,10 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   @encoded_attestation_object_chrome "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViko3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUdFAAAAAK3OAAI1vMYKZIsLJfHwVQMAILv_1TM4JzTox-FHSHgOFEymS7zmPRK8YgtpTR_9GUUbpQECAyYgASFYIBE0VulC_XRULa4FpJ7MqvWPluXIOHWvwqq3N64Wu8lhIlggVpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
   @encoded_client_data_json_chrome "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
 
+  # 1Password
+  @encoded_attestation_object_1password "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViUo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAALraVWanqkAfvZZFYZpVEg0AEGBXeEQ8yxQazz5IPwZqhE2lAQIDJiABIVggvWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzIiWCDXAfwyGybtPLjHWFj0vR7bWVq6RvNuEq4xGW9Mf6eCcw"
+  @encoded_client_data_json_1password "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20ifQ"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -205,6 +209,81 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                      },
                      json:
                        "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE\",\"y\":\"Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M\"}"
+                   },
+                   raw: _,
+                   extensions: nil
+                 },
+                 extensions: nil
+               },
+               fmt: "none",
+               att_stmt: %{},
+               raw: _
+             } = attestation_object
+    end
+
+    test "1password" do
+      assert {:ok, _client_data_json} =
+               Register.validate_client_data_json(%{
+                 client_data_json: @encoded_client_data_json_1password,
+                 origin: @sample_origin,
+                 challenge: @sample_challenge
+               })
+
+      assert {:ok, storable_public_key = %StorablePublicKey{}, attestation_object} =
+               Register.validate_attestation_object(%{
+                 attestation_object: @encoded_attestation_object_1password,
+                 client_data_json: @encoded_client_data_json_1password,
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: false
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "YFd4RDzLFBrPPkg_BmqETQ",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI",
+                   "y" => "1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI\",\"y\":\"1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM\"}"
+               },
+               sign_count: 0
+             } = storable_public_key
+
+      assert %WebAuthnLite.AttestationObject{
+               auth_data: %WebAuthnLite.AuthenticatorData{
+                 rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+                 flags: %WebAuthnLite.AuthenticatorData.Flags{
+                   flags: "]",
+                   up: true,
+                   uv: true,
+                   be: true,
+                   bs: true,
+                   at: true,
+                   ed: false
+                 },
+                 sign_count: 0,
+                 raw: _,
+                 attested_credential_data: %WebAuthnLite.AttestedCredentialData{
+                   aaguid: "bada5566-a7aa-401f-bd96-45619a55120d",
+                   authenticator_name: "1Password",
+                   credential_id: "YFd4RDzLFBrPPkg_BmqETQ",
+                   credential_public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                     key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                     digest_type: :sha256,
+                     map: %{
+                       "crv" => "P-256",
+                       "kty" => "EC",
+                       "x" => "vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI",
+                       "y" => "1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM"
+                     },
+                     json:
+                       "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI\",\"y\":\"1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM\"}"
                    },
                    raw: _,
                    extensions: nil

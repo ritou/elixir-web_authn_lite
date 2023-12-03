@@ -30,6 +30,12 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
   @encoded_client_data_json_chrome "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
   @encoded_signature_chrome "MEUCIDcWFNjAM_g10HjzzG3kD0Dzj28LIk4kWr9IkJST1SzCAiEAkrIctvKzDEh0wZ0WlN2ghLDgkIQp2p7bzT8czK0_lLo"
 
+  # 1Password
+  @encoded_attestation_object_1password "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViUo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAALraVWanqkAfvZZFYZpVEg0AEGBXeEQ8yxQazz5IPwZqhE2lAQIDJiABIVggvWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzIiWCDXAfwyGybtPLjHWFj0vR7bWVq6RvNuEq4xGW9Mf6eCcw"
+  @encoded_authenticator_data_1password "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUcdAAAAAA"
+  @encoded_client_data_json_1password "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20ifQ"
+  @encoded_signature_1password "MEUCIQD59PjH7DGr7GkKlJf2LRj-JtAwEgq1Q2KEPXmgsqumZgIgQBxKCXTFq1PH81cgN8I_zWPNlKJ5-9TPdwgm-y_FeRA"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -174,6 +180,63 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
                  uv: true,
                  be: false,
                  bs: false,
+                 at: false,
+                 ed: false
+               },
+               sign_count: 0,
+               raw: _,
+               attested_credential_data: nil,
+               extensions: nil
+             } = authenticator_data
+    end
+
+    test "1password" do
+      {:ok, attestation_object} =
+        WebAuthnLite.AttestationObject.decode(@encoded_attestation_object_1password)
+
+      storable_public_key = %StorablePublicKey{
+        credential_id: attestation_object.auth_data.attested_credential_data.credential_id,
+        public_key: attestation_object.auth_data.attested_credential_data.credential_public_key,
+        sign_count: attestation_object.auth_data.sign_count
+      }
+
+      assert {:ok, updated_storable_public_key, authenticator_data} =
+               Authenticate.validate_authenticator_assertion(%{
+                 credential_id: storable_public_key.credential_id,
+                 signature: @encoded_signature_1password,
+                 authenticator_data: @encoded_authenticator_data_1password,
+                 client_data_json: @encoded_client_data_json_1password,
+                 public_keys: [storable_public_key],
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: true
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "YFd4RDzLFBrPPkg_BmqETQ",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI",
+                   "y" => "1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"vWFLkJMYDEDGBi6yc8ScvDfjq2kouAGlmQYdx9JunzI\",\"y\":\"1wH8Mhsm7Ty4x1hY9L0e21laukbzbhKuMRlvTH-ngnM\"}"
+               },
+               sign_count: 0
+             } = updated_storable_public_key
+
+      assert %WebAuthnLite.AuthenticatorData{
+               rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+               flags: %WebAuthnLite.AuthenticatorData.Flags{
+                 flags: <<29>>,
+                 up: true,
+                 uv: true,
+                 be: true,
+                 bs: true,
                  at: false,
                  ed: false
                },
