@@ -26,12 +26,12 @@ defmodule WebAuthnLite.AttestationObject do
   def decode(base64_url_encoded_attestation_object) do
     try do
       with raw <- base64_url_encoded_attestation_object |> Base.url_decode64!(padding: false),
-           %{
-             "authData" => %CBOR.Tag{tag: :bytes, value: auth_data_binary},
-             "fmt" => fmt,
-             "attStmt" => att_stmt
-           } <-
-             raw |> WebAuthnLite.CBOR.decode!(),
+           {:ok,
+            %{
+              "authData" => %CBOR.Tag{tag: :bytes, value: auth_data_binary},
+              "fmt" => fmt,
+              "attStmt" => att_stmt
+            }, _} <- raw |> CBOR.decode(),
            {:ok, auth_data} <-
              auth_data_binary
              |> WebAuthnLite.AuthenticatorData.from_binary() do
@@ -39,7 +39,7 @@ defmodule WebAuthnLite.AttestationObject do
         {:ok, %__MODULE__{auth_data: auth_data, fmt: fmt, att_stmt: att_stmt, raw: raw}}
       else
         # cbor decode error
-        {:error, :invalid_trailing_data} -> @rounded_error
+        {:error, :cbor_function_clause_error} -> @rounded_error
         {:error, _} = error -> error
         _ -> @rounded_error
       end

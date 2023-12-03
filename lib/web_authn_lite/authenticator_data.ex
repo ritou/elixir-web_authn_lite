@@ -15,7 +15,7 @@ defmodule WebAuthnLite.AuthenticatorData do
           sign_count: Integer.t(),
           raw: String.t(),
           attested_credential_data: binary,
-          extensions: binary
+          extensions: map | nil
         }
 
   @min_size_of_authenticator_data 37
@@ -38,19 +38,21 @@ defmodule WebAuthnLite.AuthenticatorData do
            true <- raw |> byte_size() >= @min_size_of_authenticator_data,
            rp_id_hash <- raw |> :binary.part(0, 32),
            flags <- raw |> :binary.part(32, 1) |> Flags.from_binary() |> elem(1),
-           sign_count <- raw |> :binary.part(33, 4) |> :binary.decode_unsigned() do
-        attested_credential_data =
-          if flags.at && !flags.ed,
-            do:
-              raw
-              |> :binary.part(37, byte_size(raw) - 37)
-              |> AttestedCredentialData.from_binary()
-              |> elem(1),
-            else: nil
-
-        extensions =
-          if !flags.at && flags.ed, do: raw |> :binary.part(37, byte_size(raw) - 37), else: nil
-
+           sign_count <- raw |> :binary.part(33, 4) |> :binary.decode_unsigned(),
+           {:ok, attested_credential_data} <-
+             (if flags.at do
+                raw
+                |> :binary.part(37, byte_size(raw) - 37)
+                |> AttestedCredentialData.from_binary()
+              else
+                {:ok, nil}
+              end),
+           {:ok, extensions, _} <-
+             (if !flags.at && flags.ed do
+                raw |> :binary.part(37, byte_size(raw) - 37) |> CBOR.decode()
+              else
+                {:ok, nil, nil}
+              end) do
         {:ok,
          %__MODULE__{
            rp_id_hash: rp_id_hash |> Base.url_encode64(padding: false),
@@ -58,7 +60,12 @@ defmodule WebAuthnLite.AuthenticatorData do
            sign_count: sign_count,
            raw: raw,
            attested_credential_data: attested_credential_data,
-           extensions: extensions
+           extensions:
+             if attested_credential_data do
+               attested_credential_data.extensions
+             else
+               extensions
+             end
          }}
       else
         {:error, _} = error -> error

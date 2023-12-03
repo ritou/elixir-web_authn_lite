@@ -52,7 +52,7 @@ defmodule WebAuthnLite.ClientDataJSONTest do
     assert {:ok, authenticator_data} =
              AuthenticatorData.decode(@encoded_authenticator_data_with_at_and_ed_flags)
 
-    refute is_nil(authenticator_data.attested_credential_data)
+    assert authenticator_data.extensions == %{"credProtect" => 2}
   end
 
   test "valid_rp_id_hash?" do
