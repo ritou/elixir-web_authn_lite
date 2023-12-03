@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 (2023-12-04)
+
+* Use external CBOR library
+* Add handling of ED flags (thanks to k-asm)
+
 ## 0.4.0 (2023-09-29)
 
 * Support BE, BS flags
