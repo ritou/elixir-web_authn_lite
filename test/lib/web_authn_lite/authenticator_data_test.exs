@@ -12,6 +12,8 @@ defmodule WebAuthnLite.ClientDataJSONTest do
 
   @encoded_authenticator_data_with_attested_credential_data "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NBAAAAC_igEfOMCk0VgAYXER-e3H0AEDIBRoyihvjNZOR2yfjLPhulAQIDJiABIVggIXUM4qBXox--h7XwLrTlN4oPj-8bE27wjXlEZIRHL4kiWCBFllqpZSGGRUTgbLTjR5_H4oUr0SJIm3oE659m5sVxUw"
 
+  @encoded_authenticator_data_with_at_and_ed_flags "LWYN6Zr3LGATQ5ltOzp9kKaO99hlDHvEX0cJz9XAja_FAAAAAgAAAAAAAAAAAAAAAAAAAAAAELTtWv7zjeH54PG64kKvaZWlAQIDJiABIVggiNnMCzfEsztcR_MWS0hqXh_1pYOPUBRyiEiic8IeYfoiWCA2RRMKV77d4qdiJxzMew4L9vw8jb9zv2dg-owBglUZDqFrY3JlZFByb3RlY3QC"
+
   test "decode, from_binary" do
     assert {:ok, authenticator_data} = AuthenticatorData.decode(@valid_encoded_authenticator_data)
 
@@ -42,6 +44,13 @@ defmodule WebAuthnLite.ClientDataJSONTest do
 
     assert {:ok, authenticator_data} =
              AuthenticatorData.decode(@encoded_authenticator_data_with_attested_credential_data)
+
+    refute is_nil(authenticator_data.attested_credential_data)
+  end
+
+  test "with AT and ED" do
+    assert {:ok, authenticator_data} =
+             AuthenticatorData.decode(@encoded_authenticator_data_with_at_and_ed_flags)
 
     refute is_nil(authenticator_data.attested_credential_data)
   end
