@@ -24,6 +24,12 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
   @encoded_client_data_json_keychain "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
   @encoded_signature_keychain "MEQCIDWMoLHFQkcZLybJQ_PsFam6LNxVS7eWXNXsinqB3FkZAiAq1VCuISjiGkJznuxustoMoMBfh5n-XLSqHjxj0hTYVQ"
 
+  # Chrome on MacOS
+  @encoded_attestation_object_chrome "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViko3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUdFAAAAAK3OAAI1vMYKZIsLJfHwVQMAILv_1TM4JzTox-FHSHgOFEymS7zmPRK8YgtpTR_9GUUbpQECAyYgASFYIBE0VulC_XRULa4FpJ7MqvWPluXIOHWvwqq3N64Wu8lhIlggVpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
+  @encoded_authenticator_data_chrome "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUcFAAAAAA"
+  @encoded_client_data_json_chrome "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
+  @encoded_signature_chrome "MEUCIDcWFNjAM_g10HjzzG3kD0Dzj28LIk4kWr9IkJST1SzCAiEAkrIctvKzDEh0wZ0WlN2ghLDgkIQp2p7bzT8czK0_lLo"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -116,6 +122,63 @@ defmodule WebAuthnLite.Operation.AuthenticateTest do
                  <<163, 121, 166, 246, 238, 175, 185, 165, 94, 55, 140, 17, 128, 52, 226, 117, 30,
                    104, 47, 171, 159, 45, 48, 171, 19, 210, 18, 85, 134, 206, 25, 71, 29, 0, 0, 0,
                    0>>,
+               attested_credential_data: nil,
+               extensions: nil
+             } = authenticator_data
+    end
+
+    test "chrome" do
+      {:ok, attestation_object} =
+        WebAuthnLite.AttestationObject.decode(@encoded_attestation_object_chrome)
+
+      storable_public_key = %StorablePublicKey{
+        credential_id: attestation_object.auth_data.attested_credential_data.credential_id,
+        public_key: attestation_object.auth_data.attested_credential_data.credential_public_key,
+        sign_count: attestation_object.auth_data.sign_count
+      }
+
+      assert {:ok, updated_storable_public_key, authenticator_data} =
+               Authenticate.validate_authenticator_assertion(%{
+                 credential_id: storable_public_key.credential_id,
+                 signature: @encoded_signature_chrome,
+                 authenticator_data: @encoded_authenticator_data_chrome,
+                 client_data_json: @encoded_client_data_json_chrome,
+                 public_keys: [storable_public_key],
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: true
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "u__VMzgnNOjH4UdIeA4UTKZLvOY9ErxiC2lNH_0ZRRs",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE",
+                   "y" => "Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE\",\"y\":\"Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M\"}"
+               },
+               sign_count: 0
+             } = updated_storable_public_key
+
+      assert %WebAuthnLite.AuthenticatorData{
+               rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+               flags: %WebAuthnLite.AuthenticatorData.Flags{
+                 flags: <<5>>,
+                 up: true,
+                 uv: true,
+                 be: false,
+                 bs: false,
+                 at: false,
+                 ed: false
+               },
+               sign_count: 0,
+               raw: _,
                attested_credential_data: nil,
                extensions: nil
              } = authenticator_data

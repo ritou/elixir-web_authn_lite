@@ -22,6 +22,10 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   @encoded_attestation_object_keychain "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViYo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCPmvJjrA9Cj6TU2H1Oa2r8fB9pGpQECAyYgASFYICdFZVoxrv4JsVRQRND88TV_Q917IgdcpF2jDg4cFelXIlgg5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc"
   @encoded_client_data_json_keychain "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
 
+  # Chrome on MacOS
+  @encoded_attestation_object_chrome "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViko3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUdFAAAAAK3OAAI1vMYKZIsLJfHwVQMAILv_1TM4JzTox-FHSHgOFEymS7zmPRK8YgtpTR_9GUUbpQECAyYgASFYIBE0VulC_XRULa4FpJ7MqvWPluXIOHWvwqq3N64Wu8lhIlggVpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
+  @encoded_client_data_json_chrome "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
+
   describe "basic" do
     test "validate_client_data_json" do
       assert {:ok, _client_data_json} =
@@ -63,7 +67,7 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   end
 
   describe "actual authenticator's log" do
-    test "validate_attestation_object_keychain" do
+    test "keychain" do
       assert {:ok, _client_data_json} =
                Register.validate_client_data_json(%{
                  client_data_json: @encoded_client_data_json_keychain,
@@ -126,6 +130,81 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                      },
                      json:
                        "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"J0VlWjGu_gmxVFBE0PzxNX9D3XsiB1ykXaMODhwV6Vc\",\"y\":\"5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc\"}"
+                   },
+                   raw: _,
+                   extensions: nil
+                 },
+                 extensions: nil
+               },
+               fmt: "none",
+               att_stmt: %{},
+               raw: _
+             } = attestation_object
+    end
+
+    test "chrome" do
+      assert {:ok, _client_data_json} =
+               Register.validate_client_data_json(%{
+                 client_data_json: @encoded_client_data_json_chrome,
+                 origin: @sample_origin,
+                 challenge: @sample_challenge
+               })
+
+      assert {:ok, storable_public_key = %StorablePublicKey{}, attestation_object} =
+               Register.validate_attestation_object(%{
+                 attestation_object: @encoded_attestation_object_chrome,
+                 client_data_json: @encoded_client_data_json_chrome,
+                 rp_id: @sample_rp_id,
+                 up_required: true,
+                 uv_required: false
+               })
+
+      assert %WebAuthnLite.StorablePublicKey{
+               credential_id: "u__VMzgnNOjH4UdIeA4UTKZLvOY9ErxiC2lNH_0ZRRs",
+               public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                 key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                 digest_type: :sha256,
+                 map: %{
+                   "crv" => "P-256",
+                   "kty" => "EC",
+                   "x" => "ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE",
+                   "y" => "Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
+                 },
+                 json:
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE\",\"y\":\"Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M\"}"
+               },
+               sign_count: 0
+             } = storable_public_key
+
+      assert %WebAuthnLite.AttestationObject{
+               auth_data: %WebAuthnLite.AuthenticatorData{
+                 rp_id_hash: "o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUc",
+                 flags: %WebAuthnLite.AuthenticatorData.Flags{
+                   flags: "E",
+                   up: true,
+                   uv: true,
+                   be: false,
+                   bs: false,
+                   at: true,
+                   ed: false
+                 },
+                 sign_count: 0,
+                 raw: _,
+                 attested_credential_data: %WebAuthnLite.AttestedCredentialData{
+                   aaguid: "adce0002-35bc-c60a-648b-0b25f1f05503",
+                   authenticator_name: "Chrome on Mac",
+                   credential_id: "u__VMzgnNOjH4UdIeA4UTKZLvOY9ErxiC2lNH_0ZRRs",
+                   credential_public_key: %WebAuthnLite.CredentialPublicKey.ES256{
+                     key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
+                     digest_type: :sha256,
+                     map: %{
+                       "crv" => "P-256",
+                       "kty" => "EC",
+                       "x" => "ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE",
+                       "y" => "Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M"
+                     },
+                     json:
+                       "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"ETRW6UL9dFQtrgWknsyq9Y-W5cg4da_Cqrc3rha7yWE\",\"y\":\"Vpcik5uSvSvNTdlL2Okjjtu4bE-u1OAp8to2saFVa1M\"}"
                    },
                    raw: _,
                    extensions: nil
