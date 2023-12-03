@@ -30,6 +30,7 @@ defmodule WebAuthnLite.MixProject do
     [
       {:jose, "~> 1.8"},
       {:jason, "~> 1.1"},
+      {:cbor, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
