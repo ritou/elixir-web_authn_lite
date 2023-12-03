@@ -5,9 +5,16 @@ defmodule WebAuthnLite.AttestedCredentialData do
   https://www.w3.org/TR/webauthn/#sec-attested-credential-data
   """
 
-  alias WebAuthnLite.{CredentialPublicKey, CBOR}
+  alias WebAuthnLite.CredentialPublicKey
 
-  defstruct [:aaguid, :authenticator_name, :credential_id, :credential_public_key, :raw]
+  defstruct [
+    :aaguid,
+    :authenticator_name,
+    :credential_id,
+    :credential_public_key,
+    :raw,
+    :extensions
+  ]
 
   @min_size_of_attested_credential_data 18
 
@@ -16,7 +23,8 @@ defmodule WebAuthnLite.AttestedCredentialData do
           authenticator_name: String.t(),
           credential_id: String.t(),
           credential_public_key: term,
-          raw: binary
+          raw: binary,
+          extensions: map | nil
         }
 
   @rounded_error {:error, :invalid_attested_credential_data}
@@ -52,21 +60,22 @@ defmodule WebAuthnLite.AttestedCredentialData do
            attested_credential_data
            |> :binary.part(18, credential_id_length)
            |> Base.url_encode64(padding: false),
-         credential_public_key <-
+         {:ok, decoded, extensions} <-
            attested_credential_data
            |> :binary.part(
              18 + credential_id_length,
              byte_size(attested_credential_data) - credential_id_length - 18
            )
-           |> CBOR.decode!()
-           |> CredentialPublicKey.from_cbor_map() do
+           |> CBOR.decode(),
+         credential_public_key <- decoded |> CredentialPublicKey.from_cbor_map() do
       {:ok,
        %__MODULE__{
          aaguid: aaguid,
          authenticator_name: authenticator_name,
          credential_id: credential_id,
          credential_public_key: credential_public_key,
-         raw: attested_credential_data
+         raw: attested_credential_data,
+         extensions: parse_extensions(extensions)
        }}
     else
       {:error, _} = error -> error
@@ -100,6 +109,15 @@ defmodule WebAuthnLite.AttestedCredentialData do
       # MDS
       Map.has_key?(@mds_aaguid_list, aaguid) -> @mds_aaguid_list[aaguid]["name"]
       true -> nil
+    end
+  end
+
+  defp parse_extensions(""), do: nil
+
+  defp parse_extensions(bytes) do
+    case CBOR.decode(bytes) do
+      {:ok, decoded, _} -> decoded
+      _ -> nil
     end
   end
 end
