@@ -19,7 +19,7 @@ defmodule WebAuthnLite.Operation.RegisterTest do
   @sample_rp_id "example.com"
 
   # keychain
-  @encoded_attestation_object_keychain "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViYo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCPmvJjrA9Cj6TU2H1Oa2r8fB9pGpQECAyYgASFYICdFZVoxrv4JsVRQRND88TV_Q917IgdcpF2jDg4cFelXIlgg5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc"
+  @encoded_attestation_object_keychain "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViYo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9ISVYbOGUddAAAAAPv8MAcVTk7MjAtuAgVX170AFOZrpU9l6H4OXBryz5cC0G952b8dpQECAyYgASFYIGAhP4smwwBQ-NoVi8E3pV1vQ-gOzszN_oJGd-_-at93IlggQyg3-uNndISiY8sTRVYopaxSAiGoINQwcYbC1X8pZPI"
   @encoded_client_data_json_keychain "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS001UDA1M3o5SEtES25mREJDZEU2ZyIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
 
   # Chrome on MacOS
@@ -93,18 +93,18 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                })
 
       assert %WebAuthnLite.StorablePublicKey{
-               credential_id: "I-a8mOsD0KPpNTYfU5ravx8H2kY",
+               credential_id: "5mulT2Xofg5cGvLPlwLQb3nZvx0",
                public_key: %WebAuthnLite.CredentialPublicKey.ES256{
                  key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
                  digest_type: :sha256,
                  map: %{
                    "crv" => "P-256",
                    "kty" => "EC",
-                   "x" => "J0VlWjGu_gmxVFBE0PzxNX9D3XsiB1ykXaMODhwV6Vc",
-                   "y" => "5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc"
+                   "x" => "YCE_iybDAFD42hWLwTelXW9D6A7OzM3-gkZ37_5q33c",
+                   "y" => "Qyg3-uNndISiY8sTRVYopaxSAiGoINQwcYbC1X8pZPI"
                  },
                  json:
-                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"J0VlWjGu_gmxVFBE0PzxNX9D3XsiB1ykXaMODhwV6Vc\",\"y\":\"5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc\"}"
+                   "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"YCE_iybDAFD42hWLwTelXW9D6A7OzM3-gkZ37_5q33c\",\"y\":\"Qyg3-uNndISiY8sTRVYopaxSAiGoINQwcYbC1X8pZPI\"}"
                },
                sign_count: 0
              } = storable_public_key
@@ -124,20 +124,20 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                  sign_count: 0,
                  raw: _,
                  attested_credential_data: %WebAuthnLite.AttestedCredentialData{
-                   aaguid: "00000000-0000-0000-0000-000000000000",
-                   authenticator_name: nil,
-                   credential_id: "I-a8mOsD0KPpNTYfU5ravx8H2kY",
+                   aaguid: "fbfc3007-154e-4ecc-8c0b-6e020557d7bd",
+                   authenticator_name: "iCloud Keychain",
+                   credential_id: "5mulT2Xofg5cGvLPlwLQb3nZvx0",
                    credential_public_key: %WebAuthnLite.CredentialPublicKey.ES256{
                      key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
                      digest_type: :sha256,
                      map: %{
                        "crv" => "P-256",
                        "kty" => "EC",
-                       "x" => "J0VlWjGu_gmxVFBE0PzxNX9D3XsiB1ykXaMODhwV6Vc",
-                       "y" => "5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc"
+                       "x" => "YCE_iybDAFD42hWLwTelXW9D6A7OzM3-gkZ37_5q33c",
+                       "y" => "Qyg3-uNndISiY8sTRVYopaxSAiGoINQwcYbC1X8pZPI"
                      },
                      json:
-                       "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"J0VlWjGu_gmxVFBE0PzxNX9D3XsiB1ykXaMODhwV6Vc\",\"y\":\"5hQAmXqwfBISWno5v4dk1byQ0iUiq2P63yb1PfrFHmc\"}"
+                       "{\"crv\":\"P-256\",\"kty\":\"EC\",\"x\":\"YCE_iybDAFD42hWLwTelXW9D6A7OzM3-gkZ37_5q33c\",\"y\":\"Qyg3-uNndISiY8sTRVYopaxSAiGoINQwcYbC1X8pZPI\"}"
                    },
                    raw: _,
                    extensions: nil
