@@ -10,7 +10,7 @@ by adding `web_authn_lite` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:web_authn_lite, "~> 0.5"}
+    {:web_authn_lite, "~> 0.6"}
   ]
 end
 ```

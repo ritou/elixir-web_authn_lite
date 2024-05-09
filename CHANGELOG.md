@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 (2024-05-09)
+
+* Update AAGUID json file for passkeys
+
 ## 0.5.0 (2023-12-04)
 
 * Use external CBOR library
