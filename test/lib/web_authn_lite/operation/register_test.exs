@@ -125,7 +125,7 @@ defmodule WebAuthnLite.Operation.RegisterTest do
                  raw: _,
                  attested_credential_data: %WebAuthnLite.AttestedCredentialData{
                    aaguid: "fbfc3007-154e-4ecc-8c0b-6e020557d7bd",
-                   authenticator_name: "iCloud Keychain",
+                   authenticator_name: "Apple Passwords",
                    credential_id: "5mulT2Xofg5cGvLPlwLQb3nZvx0",
                    credential_public_key: %WebAuthnLite.CredentialPublicKey.ES256{
                      key: {{:ECPoint, _}, {:namedCurve, {1, 2, 840, 10045, 3, 1, 7}}},
